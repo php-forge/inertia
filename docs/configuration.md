@@ -47,14 +47,14 @@ expanded before resolution.
 
 Use `PHPForge\Inertia\Prop\Prop` to create protocol-aware values:
 
-| Factory | Behavior |
-| --- | --- |
-| `Prop::always($value)` | Includes the value during partial reloads regardless of the requested prop filters. |
-| `Prop::optional($callback)` | Omits the prop from full visits and resolves it only when selected by a partial reload. |
-| `Prop::defer($callback, $group, $rescue)` | Omits the prop from full visits and announces a deferred group. |
-| `Prop::merge($value)` | Adds append, prepend, deep-merge, and match metadata. |
-| `Prop::once($callback)` | Adds client cache metadata and skips cached values on later full Inertia visits. |
-| `Prop::scroll($value, $metadata, $wrapper)` | Adds infinite-scroll merge and pagination metadata. |
+| Factory                                     | Behavior                                                                                |
+| ------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Prop::always($value)`                      | Includes the value during partial reloads regardless of the requested prop filters.     |
+| `Prop::optional($callback)`                 | Omits the prop from full visits and resolves it only when selected by a partial reload. |
+| `Prop::defer($callback, $group, $rescue)`   | Omits the prop from full visits and announces a deferred group.                         |
+| `Prop::merge($value)`                       | Adds append, prepend, deep-merge, and match metadata.                                   |
+| `Prop::once($callback)`                     | Adds client cache metadata and skips cached values on later full Inertia visits.        |
+| `Prop::scroll($value, $metadata, $wrapper)` | Adds infinite-scroll merge and pagination metadata.                                     |
 
 Prop callbacks are exact zero-argument closures. A scroll metadata closure is the only exception: it receives the resolved
 scroll value and must return `ScrollMetadata`.
@@ -92,11 +92,11 @@ directly when they need resolved page data without protocol result negotiation. 
 
 Call `Protocol::page($request, $input)`. The adapter maps the returned value as follows:
 
-| Result | Status | Adapter body responsibility |
-| --- | ---: | --- |
-| `InitialPageResult` | 200 | Render the root HTML document and embed `page()` as JSON. |
-| `InertiaPageResult` | 200 | Encode `page()` as the JSON response body. |
-| `VersionConflictResult` | 409 | Return an empty body and let the client perform the location visit. |
+| Result                  | Status | Adapter body responsibility                                         |
+| ----------------------- | -----: | ------------------------------------------------------------------- |
+| `InitialPageResult`     |    200 | Render the root HTML document and embed `page()` as JSON.           |
+| `InertiaPageResult`     |    200 | Encode `page()` as the JSON response body.                          |
+| `VersionConflictResult` |    409 | Return an empty body and let the client perform the location visit. |
 
 Apply every entry returned by `headers()`. `VersionConflictResult` deliberately omits `X-Inertia`; it provides
 `X-Inertia-Location`, the current `X-Inertia-Version`, and `Vary: X-Inertia`.
@@ -109,8 +109,7 @@ different version header.
 Use `Protocol::location()` for an absolute external location visit. Standard requests receive `RedirectResult`; Inertia
 requests receive `LocationResult` with status 409 and `X-Inertia-Location`.
 
-Use `Protocol::redirect()` for ordinary redirects. A 302 redirect after an Inertia PUT, PATCH, or DELETE request becomes
-303. A non-prefetch Inertia redirect containing a URL fragment becomes `FragmentRedirectResult` with status 409 and
+Use `Protocol::redirect()` for ordinary redirects. A 302 redirect after an Inertia PUT, PATCH, or DELETE request becomes 303. A non-prefetch Inertia redirect containing a URL fragment becomes `FragmentRedirectResult` with status 409 and
 `X-Inertia-Redirect`.
 
 ## Failure handling

@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "infection/infection": "^0.34",
-        "maglnet/composer-require-checker": "^4.20",
+        "maglnet/composer-require-checker": "^4.10",
         "php-forge/coding-standard": "^0.3",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.2",
