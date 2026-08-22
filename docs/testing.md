@@ -2,6 +2,10 @@
 
 This package provides a consistent set of [Composer](https://getcomposer.org/) scripts for local validation.
 
+The test suite covers request validation, result negotiation, partial filtering, callback laziness, all supported prop
+metadata, modifier combinations, JSON normalization, failure rescue, redirects, and version conflicts. Tests do not boot a
+framework or create framework HTTP objects.
+
 Tool references:
 
 - [Composer Require Checker](https://github.com/maglnet/ComposerRequireChecker) for dependency definition checks.

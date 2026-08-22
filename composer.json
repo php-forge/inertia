@@ -1,48 +1,60 @@
 {
-    "name": "yii2-extensions/template",
-    "type": "library",
-    "description": "_____",
+    "name": "php-forge/inertia",
+    "description": "Framework-agnostic PHP core for the Inertia.js protocol.",
     "keywords": [
-        "_____"
+        "framework-agnostic",
+        "inertia",
+        "php",
+        "protocol",
+        "spa"
     ],
+    "homepage": "https://github.com/php-forge/inertia",
+    "type": "library",
     "license": "BSD-3-Clause",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/terabytesoftw"
+        }
+    ],
     "require": {
-        "php": ">=8.3",
-        "yiisoft/yii2": "^22"
+        "ext-json": "*",
+        "php": ">=8.3"
     },
     "require-dev": {
         "infection/infection": "^0.34",
-        "maglnet/composer-require-checker": "^4.1",
+        "maglnet/composer-require-checker": "^4.20",
         "php-forge/coding-standard": "^0.3",
         "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-phpunit": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0.3",
-        "phpunit/phpunit": "^12.5",
-        "yii2-extensions/phpstan": "^0.4"
+        "phpunit/phpunit": "^12.5"
     },
     "autoload": {
         "psr-4": {
-            "yii\\template\\": "src"
+            "PHPForge\\Inertia\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "yii\\template\\tests\\": "tests"
+            "PHPForge\\Inertia\\Tests\\": "tests/"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.0.x-dev"
+            "dev-main": "0.1.x-dev"
         }
+    },
+    "support": {
+        "issues": "https://github.com/php-forge/inertia/issues",
+        "source": "https://github.com/php-forge/inertia"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
             "infection/extension-installer": true,
-            "phpstan/extension-installer": true,
-            "yiisoft/yii2-composer": true
+            "phpstan/extension-installer": true
         }
     },
     "scripts": {
