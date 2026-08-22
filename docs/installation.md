@@ -1,43 +1,29 @@
 # Installation guide
 
-## System requirements
+## Requirements
 
-- [`PHP`](https://www.php.net/downloads) 8.1 or higher.
-- [`Composer`](https://getcomposer.org/download/) for dependency management.
-- [`Yii2`](https://github.com/yiisoft/yii2) 2.0.53+ or 22.x.
+- PHP 8.3 or later.
+- The PHP JSON extension.
+- Composer 2.
 
-## Installation
+No PHP framework, PSR-7 implementation, session library, template engine, or frontend build tool is required.
 
-### Method 1: Using [Composer](https://getcomposer.org/download/) (recommended)
-
-Install the extension.
+## Install with Composer
 
 ```bash
-composer require github_username/github_repository-name
+composer require php-forge/inertia:^0.1
 ```
 
-### Method 2: Manual installation
+The package exposes the `PHPForge\Inertia\` namespace through PSR-4 autoloading.
 
-Add to your `composer.json`.
+## Integration prerequisite
 
-```json
-{
-    "require": {
-        "github_username/github_repository-name": "^1.0"
-    }
-}
-```
+The package intentionally provides protocol data rather than an HTTP integration. Before using it in an application,
+implement a small adapter that can:
 
-Then run.
+1. Build a `RequestContext` from the active HTTP request.
+2. Build a `PageInput` from application data.
+3. Translate the returned protocol result into the application's response type.
+4. Render the root HTML document for `InitialPageResult`.
 
-```bash
-composer update
-```
-
-## Next steps
-
-Once the installation is complete.
-
-- ⚙️ [Configuration Reference](configuration.md)
-- 💡 [Usage Examples](examples.md)
-- 🧪 [Testing Guide](testing.md)
+Continue with the [configuration and adapter reference](configuration.md).

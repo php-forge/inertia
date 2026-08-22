@@ -10,48 +10,48 @@
     <g>
         <rect class="box-bg" x="16" y="16" width="588" height="84" rx="6"/>
         <rect x="16" y="16" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="42">Best Practices</text>
-        <text class="content" x="32" y="66">PSR standards &#8226; Clean code &#8226; Documentation ready</text>
-        <text class="content" x="32" y="84">PER 3.0 + PSR-12 coding standards</text>
+        <text class="title" x="32" y="42">Framework Agnostic</text>
+        <text class="content" x="32" y="66">Plain PHP &#8226; Yii2 &#8226; Yii3 &#8226; Other adapters</text>
+        <text class="content" x="32" y="84">No container, session, view, or HTTP framework dependency</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="116" width="588" height="84" rx="6"/>
         <rect x="16" y="116" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="142">Easy Setup</text>
-        <text class="content" x="32" y="166">Quick start template &#8226; Configuration examples &#8226; Clear structure</text>
-        <text class="content" x="32" y="184">Ready-to-use project scaffolding</text>
+        <text class="title" x="32" y="142">Protocol Results</text>
+        <text class="content" x="32" y="166">Initial pages &#8226; Inertia pages &#8226; Redirects &#8226; Version conflicts</text>
+        <text class="content" x="32" y="184">Neutral values expose status, headers, and page data</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="216" width="588" height="84" rx="6"/>
         <rect x="16" y="216" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="242">GitHub Actions</text>
-        <text class="content" x="32" y="266">CI/CD workflows &#8226; Automated testing &#8226; Quality checks</text>
-        <text class="content" x="32" y="284">Super-Linter &#8226; PHPStan &#8226; ECS &#8226; Infection</text>
+        <text class="title" x="32" y="242">Partial Reloads</text>
+        <text class="content" x="32" y="266">Only &#8226; Except &#8226; Always &#8226; Optional &#8226; Dot notation</text>
+        <text class="content" x="32" y="284">Lazy callbacks resolve only when selected</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="316" width="588" height="84" rx="6"/>
         <rect x="16" y="316" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="342">Quality Tools</text>
-        <text class="content" x="32" y="366">PHPStan Level Max &#8226; StyleCI &#8226; Super-Linter integration</text>
-        <text class="content" x="32" y="384">Mutation testing with 100% MSI requirement</text>
+        <text class="title" x="32" y="342">Advanced Props</text>
+        <text class="content" x="32" y="366">Deferred &#8226; Rescued &#8226; Merge &#8226; Deep merge &#8226; Once</text>
+        <text class="content" x="32" y="384">Explicit metadata for client-side behavior</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="416" width="588" height="84" rx="6"/>
         <rect x="16" y="416" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="442">PHP 8.3+</text>
-        <text class="content" x="32" y="466">Modern PHP features &#8226; Type safety &#8226; Performance optimizations</text>
-        <text class="content" x="32" y="484">Multi-version CI matrix: 8.3, 8.4, 8.5</text>
+        <text class="title" x="32" y="442">Infinite Scroll</text>
+        <text class="content" x="32" y="466">Append &#8226; Prepend &#8226; Match paths &#8226; Reset metadata</text>
+        <text class="content" x="32" y="484">Pagination state remains framework neutral</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="516" width="588" height="84" rx="6"/>
         <rect x="16" y="516" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="542">Testing Ready</text>
-        <text class="content" x="32" y="566">PHPUnit 11.5 &#8226; Mutation testing &#8226; Codecov integration</text>
-        <text class="content" x="32" y="584">Dependency checker &#8226; Rector automated refactoring</text>
+        <text class="title" x="32" y="542">Safe Determinism</text>
+        <text class="content" x="32" y="566">Immutable values &#8226; JSON validation &#8226; Injected clock</text>
+        <text class="content" x="32" y="584">Long-running processes without global state</text>
     </g>
 </svg>

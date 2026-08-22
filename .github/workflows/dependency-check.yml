@@ -17,4 +17,4 @@ permissions:
 
 jobs:
   composer-require-checker:
-    uses: yii2-framework/actions/.github/workflows/composer-require-checker.yml@670b6444a11798dc2b38f2563dbbcef063dfc0ab # v2.0.1
+    uses: php-forge/actions/.github/workflows/composer-require-checker.yml@a574dbe95fc370db1b7b5ea546cd5ff5b70304d6 # v3.0.0
