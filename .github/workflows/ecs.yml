@@ -1,0 +1,20 @@
+---
+on:
+  pull_request: &ignore-paths
+    paths-ignore:
+      - ".gitattributes"
+      - ".gitignore"
+      - "CHANGELOG.md"
+      - "docs/**"
+      - "README.md"
+
+  push: *ignore-paths
+
+name: ecs
+
+permissions:
+  contents: read
+
+jobs:
+  easy-coding-standard:
+    uses: yii2-framework/actions/.github/workflows/ecs.yml@670b6444a11798dc2b38f2563dbbcef063dfc0ab # v2.0.1
