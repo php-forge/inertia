@@ -9,3 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat: added a framework-agnostic Inertia.js protocol core under the `PHPForge\Inertia` namespace.
 - docs: add class-level PHPDoc for the migrated protocol, page, prop, result, and support APIs.
+- test: achieve 100% class, method, and line coverage through public behavior with explicit invariant exclusions.

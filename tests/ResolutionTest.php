@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Inertia\Tests;
 
 use PHPForge\Inertia\Exception\{InvalidPropException, Message};
-use PHPForge\Inertia\Prop\{AlwaysProp, DeferredProp, MergeProp, OnceProp, ScrollMetadata, ScrollProp};
+use PHPForge\Inertia\Prop\{AlwaysProp, DeferredProp, MergeProp, OnceProp, PropValue, ScrollMetadata, ScrollProp};
 use PHPForge\Inertia\Resolution\PropDefinition;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -99,6 +99,22 @@ final class ResolutionTest extends TestCase
         );
 
         PropDefinition::from(self::nestedAlwaysProps(65));
+    }
+
+    public function testUnknownPropValueWrapperRetainsItsBaseValue(): void
+    {
+        $wrapper = new class implements PropValue {
+            public function value(): mixed
+            {
+                return 'value';
+            }
+        };
+
+        self::assertSame(
+            'value',
+            PropDefinition::from($wrapper)->base,
+            'An unknown prop wrapper must retain its unwrapped base value.',
+        );
     }
 
     private static function nestedAlwaysProps(int $depth): mixed

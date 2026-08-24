@@ -58,23 +58,24 @@ $request = new RequestContext(
     ],
 );
 
-$result = (new Protocol())->page(
-    $request,
-    new PageInput(
-        component: 'Users/Index',
-        props: [
-            'users' => Prop::merge(fn (): array => loadUsers())->append('data', 'id'),
-            'analytics' => Prop::defer(fn (): array => loadAnalytics(), group: 'analytics'),
-            'filters' => Prop::optional(fn (): array => availableFilters()),
-        ],
-        version: 'assets-v1',
-        sharedProps: [
-            'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
-        ],
-        errors: validationErrors(),
-        flash: flashedData(),
-    ),
-);
+$result = (new Protocol())
+    ->page(
+        $request,
+        new PageInput(
+            component: 'Users/Index',
+            props: [
+                'users' => Prop::merge(fn (): array => loadUsers())->append('data', 'id'),
+                'analytics' => Prop::defer(fn (): array => loadAnalytics(), group: 'analytics'),
+                'filters' => Prop::optional(fn (): array => availableFilters()),
+            ],
+            version: 'assets-v1',
+            sharedProps: [
+                'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
+            ],
+            errors: validationErrors(),
+            flash: flashedData(),
+        ),
+    );
 ```
 
 `Protocol` does not return a framework response. An adapter inspects the result, applies `statusCode()` and `headers()`,
