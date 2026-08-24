@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Tests\Fixture;
 
+/**
+ * Records named invocations for assertion in unit tests.
+ */
 final class CallRecorder
 {
     /**

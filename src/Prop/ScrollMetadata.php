@@ -8,8 +8,19 @@ use PHPForge\Inertia\Exception\{InvalidPropException, Message};
 
 use function preg_match;
 
+/**
+ * Carries pagination state for an infinite-scroll prop.
+ */
 final readonly class ScrollMetadata
 {
+    /**
+     * @param string $pageName The name of the page for this scroll prop.
+     * @param string|int|null $previousPage The previous page cursor, or `null` if there is no previous page.
+     * @param string|int|null $nextPage The next page cursor, or `null` if there is no next page.
+     * @param string|int|null $currentPage The current page cursor, or `null` if there is no current page.
+     *
+     * @throws InvalidPropException When `$pageName` is empty or contains control characters.
+     */
     public function __construct(
         public string $pageName,
         public string|int|null $previousPage,
@@ -24,13 +35,17 @@ final readonly class ScrollMetadata
     }
 
     /**
+     * Returns the pagination state as an array for the Inertia protocol.
+     *
+     * @param bool $reset Whether to include a reset flag in the returned array.
+     *
      * @return array{
      *   pageName: string,
      *   previousPage: int|string|null,
      *   nextPage: int|string|null,
      *   currentPage: int|string|null,
      *   reset: bool
-     * }
+     * } Pagination state map including page name, adjacent cursors, and reset flag.
      */
     public function toArray(bool $reset = false): array
     {

@@ -19,17 +19,43 @@ use PHPForge\Inertia\Result\{
 
 use function in_array;
 use function is_array;
+use function parse_url;
+use function preg_match;
+use function str_contains;
+use function str_starts_with;
+use function strtolower;
 
+/**
+ * Applies Inertia protocol decisions to framework-neutral requests, pages, locations, and `redirects.is`
+ * `InitialPageResult` or `InertiaPageResult` or `VersionConflictResult`.
+ */
 final readonly class Protocol
 {
+    /**
+     * @var Clock Clock used for once-prop expiration.
+     */
     private Clock $clock;
 
+    /**
+     * @param Clock|null $clock Clock used for once-prop expiration. Defaults to {@see SystemClock}.
+     */
     public function __construct(Clock|null $clock = null)
     {
         $this->clock = $clock ?? new SystemClock();
     }
 
-    public function location(RequestContext $request, string $absoluteUrl): RedirectResult|LocationResult
+    /**
+     * Returns an Inertia location result for external navigations, or a standard redirect outside Inertia.
+     *
+     * @param RequestContext $request Validated request context from the framework adapter.
+     * @param string $absoluteUrl Absolute HTTP/HTTPS URL of the target location.
+     *
+     * @throws InvalidArgumentException When `$absoluteUrl` is not a valid absolute HTTP/HTTPS URL.
+     *
+     * @return LocationResult|RedirectResult Returns a {@see LocationResult} for Inertia requests, or a
+     * {@see RedirectResult} for non-Inertia requests.
+     */
+    public function location(RequestContext $request, string $absoluteUrl): LocationResult|RedirectResult
     {
         if (!self::isAbsoluteHttpUrl($absoluteUrl)) {
             throw new InvalidArgumentException(
@@ -42,6 +68,20 @@ final readonly class Protocol
             : new RedirectResult($absoluteUrl);
     }
 
+    /**
+     * Resolves page props and returns the appropriate Inertia page result.
+     *
+     * Returns {@see VersionConflictResult} when the client's asset version differs from the page version.
+     * Returns {@see InertiaPageResult} for Inertia partial or full visits.
+     * Returns {@see InitialPageResult} for the initial HTML render.
+     *
+     * @param RequestContext $request Validated request context from the framework adapter.
+     * @param PageInput $input Validated page data, props, and options.
+     *
+     * @return InitialPageResult|InertiaPageResult|VersionConflictResult Returns an {@see InitialPageResult} for the
+     * initial HTML render, an {@see InertiaPageResult} for Inertia partial or full visits, or a
+     * {@see VersionConflictResult} when the client's asset version differs from the page version.
+     */
     public function page(
         RequestContext $request,
         PageInput $input,
@@ -81,6 +121,18 @@ final readonly class Protocol
             : new InitialPageResult($page, $resolved->rescuedFailures);
     }
 
+    /**
+     * Returns a redirect result, automatically adjusting for Inertia protocol rules.
+     *
+     * Converts `302` to `303` for `PUT`/`PATCH`/`DELETE` Inertia requests. Returns a {@see FragmentRedirectResult} when
+     * the URL contains a fragment and the request is a non-prefetch Inertia visit.
+     *
+     * @param RequestContext $request Validated request context from the framework adapter.
+     * @param string $url Absolute or root-relative redirect target URL.
+     * @param int $statusCode HTTP redirect status code (`301`, `302`, `303`, `307`, or `308`).
+     *
+     * @throws InvalidArgumentException When `$url` is invalid or `$statusCode` is not an allowed redirect status.
+     */
     public function redirect(
         RequestContext $request,
         string $url,
@@ -113,6 +165,16 @@ final readonly class Protocol
         return new RedirectResult($url, $statusCode);
     }
 
+    /**
+     * Resolves a relative redirect URL to an absolute URL using the request origin.
+     *
+     * @param RequestContext $request Validated request context from the framework adapter.
+     * @param string $url Absolute or root-relative redirect target URL.
+     *
+     * @throws InvalidArgumentException When the request's absolute URL cannot be parsed into scheme and host.
+     *
+     * @return string Returns the absolute redirect URL.
+     */
     private function absoluteRedirectUrl(RequestContext $request, string $url): string
     {
         if (self::isAbsoluteHttpUrl($url)) {
@@ -132,6 +194,13 @@ final readonly class Protocol
         return $parts['scheme'] . '://' . $parts['host'] . $port . $url;
     }
 
+    /**
+     * Returns `true` if `$url` is a valid absolute HTTP/HTTPS URL without credentials.
+     *
+     * @param string $url The URL to validate.
+     *
+     * @return bool `true` if the URL is valid, `false` otherwise.
+     */
     private static function isAbsoluteHttpUrl(string $url): bool
     {
         if (preg_match('/[\x00-\x20\x7F]/', $url) === 1) {
@@ -148,6 +217,13 @@ final readonly class Protocol
             && !isset($parts['pass']);
     }
 
+    /**
+     * Returns `true` if `$url` is a valid redirect target (absolute HTTP/HTTPS or root-relative without `//`).
+     *
+     * @param string $url The URL to validate.
+     *
+     * @return bool `true` if the URL is valid, `false` otherwise.
+     */
     private static function isRedirectUrl(string $url): bool
     {
         if (self::isAbsoluteHttpUrl($url)) {

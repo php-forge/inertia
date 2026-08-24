@@ -11,10 +11,15 @@ use function explode;
 use function in_array;
 use function preg_match;
 
+/**
+ * Wraps paginated data with infinite-scroll metadata and its client-side merge path.
+ */
 final readonly class ScrollProp implements PropValue
 {
     /**
-     * @param ScrollMetadata|(Closure(mixed): mixed) $metadata
+     * @param mixed $value The paginated data value.
+     * @param ScrollMetadata|(Closure(mixed): mixed) $metadata Static metadata or a closure receiving the resolved value.
+     * @param string $wrapper The client-side key under which the paginated data is nested.
      */
     public function __construct(
         private mixed $value,
@@ -31,29 +36,54 @@ final readonly class ScrollProp implements PropValue
         }
     }
 
+    /**
+     * Returns a new {@see DeferredProp} wrapping this scroll prop.
+     *
+     * @param string $group Deferred-loading group name.
+     * @param bool $rescue Whether to suppress resolution failures instead of re-throwing.
+     *
+     * @return DeferredProp A deferred prop wrapping this scroll prop.
+     */
     public function defer(string $group = 'default', bool $rescue = false): DeferredProp
     {
         return new DeferredProp($this, $group, $rescue);
     }
 
     /**
-     * @return ScrollMetadata|(Closure(mixed): mixed)
+     * Returns the scroll metadata or a closure that produces it from the resolved value.
+     *
+     * @return ScrollMetadata|(Closure(mixed): mixed) Static metadata, or a closure deriving it from the value.
      */
     public function metadata(): ScrollMetadata|Closure
     {
         return $this->metadata;
     }
 
+    /**
+     * Returns a new {@see OnceProp} wrapping this scroll prop.
+     *
+     * @return OnceProp A once prop wrapping this scroll prop.
+     */
     public function once(): OnceProp
     {
         return new OnceProp($this);
     }
 
+    /**
+     * Returns the paginated data value.
+     *
+     * @return mixed The paginated data value.
+     */
     public function value(): mixed
     {
         return $this->value;
     }
 
+    /**
+     * Returns the client-side key under which the paginated data is nested.
+     *
+     * @return string The client-side key under which the paginated data is nested.
+     */
     public function wrapper(): string
     {
         return $this->wrapper;

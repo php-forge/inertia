@@ -25,23 +25,24 @@ final class ProtocolMetadataTest extends TestCase
 {
     public function testCollectsMergeStrategiesAndHonorsReset(): void
     {
-        $result = (new Protocol())->page(
-            self::request(['X-Inertia-Reset' => 'events']),
-            new PageInput(
-                'Feed',
-                [
-                    'events' => Prop::merge([1, 2]),
-                    'notices' => Prop::merge([3, 4])->prepend(),
-                    'users' => Prop::merge(['data' => [['id' => 1]]])->append('data', 'id'),
-                    'alerts' => Prop::merge(['data' => [['uuid' => 'one']]])->prepend('data', 'uuid'),
-                    'settings' => Prop::merge(['items' => [['id' => 1]]])
-                        ->deepMerge()
-                        ->matchOn('items.id'),
-                    'dynamic' => static fn(): MergeProp => Prop::merge(['item']),
-                ],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(['X-Inertia-Reset' => 'events']),
+                new PageInput(
+                    'Feed',
+                    [
+                        'events' => Prop::merge([1, 2]),
+                        'notices' => Prop::merge([3, 4])->prepend(),
+                        'users' => Prop::merge(['data' => [['id' => 1]]])->append('data', 'id'),
+                        'alerts' => Prop::merge(['data' => [['uuid' => 'one']]])->prepend('data', 'uuid'),
+                        'settings' => Prop::merge(['items' => [['id' => 1]]])
+                            ->deepMerge()
+                            ->matchOn('items.id'),
+                        'dynamic' => static fn(): MergeProp => Prop::merge(['item']),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -102,7 +103,6 @@ final class ProtocolMetadataTest extends TestCase
             ],
             'v1',
         );
-
         $append = (new Protocol())->page(self::request(), $input);
         $prepend = (new Protocol())->page(
             self::request(['X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend']),
@@ -153,19 +153,20 @@ final class ProtocolMetadataTest extends TestCase
 
     public function testDeferredScrollPropAnnouncesDeferredAndMergeMetadata(): void
     {
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Posts',
-                [
-                    'posts' => Prop::scroll(
-                        static fn(): array => ['data' => []],
-                        new ScrollMetadata('page', null, null, 1),
-                    )->defer('feed'),
-                ],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Posts',
+                    [
+                        'posts' => Prop::scroll(
+                            static fn(): array => ['data' => []],
+                            new ScrollMetadata('page', null, null, 1),
+                        )->defer('feed'),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -192,26 +193,28 @@ final class ProtocolMetadataTest extends TestCase
     public function testDefersComposedPropsWithoutCallingCallbacks(): void
     {
         $called = false;
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Reports',
-                [
-                    'combined' => Prop::defer(
-                        static function () use (&$called): array {
-                            $called = true;
 
-                            return ['data' => []];
-                        },
-                        'analytics'
-                    )
-                    ->deepMerge()
-                    ->once()
-                    ->as('report-data'),
-                ],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Reports',
+                    [
+                        'combined' => Prop::defer(
+                            static function () use (&$called): array {
+                                $called = true;
+
+                                return ['data' => []];
+                            },
+                            'analytics'
+                        )
+                        ->deepMerge()
+                        ->once()
+                        ->as('report-data'),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -242,14 +245,15 @@ final class ProtocolMetadataTest extends TestCase
     public function testOnceExpirationAcceptsAbsoluteDateTime(): void
     {
         $expiration = new DateTimeImmutable('2026-08-23T12:00:00+00:00');
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Billing',
-                ['plans' => Prop::once(static fn(): array => [])->until($expiration)],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Billing',
+                    ['plans' => Prop::once(static fn(): array => [])->until($expiration)],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -266,14 +270,15 @@ final class ProtocolMetadataTest extends TestCase
     public function testOnceExpirationAcceptsDateInterval(): void
     {
         $now = new DateTimeImmutable('2026-08-22T12:00:00+00:00');
-        $result = (new Protocol(new FrozenClock($now)))->page(
-            self::request(),
-            new PageInput(
-                'Billing',
-                ['plans' => Prop::once(static fn(): array => [])->until(new DateInterval('PT30M'))],
-                'v1',
-            ),
-        );
+        $result = (new Protocol(new FrozenClock($now)))
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Billing',
+                    ['plans' => Prop::once(static fn(): array => [])->until(new DateInterval('PT30M'))],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -421,20 +426,21 @@ final class ProtocolMetadataTest extends TestCase
     public function testOptionalOncePropAnnouncesMetadataWithoutResolvingOnFullVisit(): void
     {
         $calls = new CallRecorder();
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Billing',
-                [
-                    'plans' => Prop::optional(static function () use ($calls): array {
-                        $calls->record();
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Billing',
+                    [
+                        'plans' => Prop::optional(static function () use ($calls): array {
+                            $calls->record();
 
-                        return [];
-                    })->once()->as('plans'),
-                ],
-                'v1',
-            ),
-        );
+                            return [];
+                        })->once()->as('plans'),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -463,27 +469,28 @@ final class ProtocolMetadataTest extends TestCase
         $definition = static fn(string $name): AlwaysProp => new AlwaysProp(
             new MergeProp(new OnceProp(static fn(): array => [$name], $name)),
         );
-        $result = (new Protocol())->page(
-            self::request([
-                'X-Inertia-Partial-Component' => 'Dashboard',
-                'X-Inertia-Partial-Data' => 'selected,excluded,nested',
-                'X-Inertia-Partial-Except' => 'excluded,nested.secret',
-            ]),
-            new PageInput(
-                'Dashboard',
-                [
-                    'selected' => $definition('selected'),
-                    'excluded' => $definition('excluded'),
-                    'unselected' => $definition('unselected'),
-                    'nested' => static fn(): array => [
-                        'secret' => [
-                            'token' => Prop::merge(['hidden']),
+        $result = (new Protocol())
+            ->page(
+                self::request([
+                    'X-Inertia-Partial-Component' => 'Dashboard',
+                    'X-Inertia-Partial-Data' => 'selected,excluded,nested',
+                    'X-Inertia-Partial-Except' => 'excluded,nested.secret',
+                ]),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'selected' => $definition('selected'),
+                        'excluded' => $definition('excluded'),
+                        'unselected' => $definition('unselected'),
+                        'nested' => static fn(): array => [
+                            'secret' => [
+                                'token' => Prop::merge(['hidden']),
+                            ],
                         ],
                     ],
-                ],
-                'v1',
-            ),
-        );
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -521,23 +528,24 @@ final class ProtocolMetadataTest extends TestCase
                 'X-Inertia-Partial-Data' => 'metrics,summary',
             ],
         );
-        $result = (new Protocol())->page(
-            $request,
-            new PageInput(
-                'Reports',
-                [
-                    'metrics' => Prop::defer(
-                        static fn(): never => throw new RuntimeException('Analytics unavailable'),
-                        rescue: true,
-                    )->merge()->once(),
-                    'summary' => Prop::defer(
-                        static fn(): never => throw new RuntimeException('Summary unavailable'),
-                        rescue: true,
-                    ),
-                ],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                $request,
+                new PageInput(
+                    'Reports',
+                    [
+                        'metrics' => Prop::defer(
+                            static fn(): never => throw new RuntimeException('Analytics unavailable'),
+                            rescue: true,
+                        )->merge()->once(),
+                        'summary' => Prop::defer(
+                            static fn(): never => throw new RuntimeException('Summary unavailable'),
+                            rescue: true,
+                        ),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -691,21 +699,22 @@ final class ProtocolMetadataTest extends TestCase
             Message::PROP_RESOLUTION_FAILED->getMessage('metrics', 'Unavailable'),
         );
 
-        (new Protocol())->page(
-            self::request(
-                [
-                    'X-Inertia-Partial-Component' => 'Reports',
-                    'X-Inertia-Partial-Data' => 'metrics',
-                ],
-            ),
-            new PageInput(
-                'Reports',
-                [
-                    'metrics' => Prop::defer(static fn(): never => throw new RuntimeException('Unavailable')),
-                ],
-                'v1',
-            ),
-        );
+        (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia-Partial-Component' => 'Reports',
+                        'X-Inertia-Partial-Data' => 'metrics',
+                    ],
+                ),
+                new PageInput(
+                    'Reports',
+                    [
+                        'metrics' => Prop::defer(static fn(): never => throw new RuntimeException('Unavailable')),
+                    ],
+                    'v1',
+                ),
+            );
     }
 
     public function testThrowPropResolutionExceptionForInvalidScrollMetadataProviderResult(): void
@@ -718,16 +727,17 @@ final class ProtocolMetadataTest extends TestCase
             ),
         );
 
-        (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Posts',
-                [
-                    'posts' => Prop::scroll([], static fn(): string => 'invalid'),
-                ],
-                'v1',
-            ),
-        );
+        (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Posts',
+                    [
+                        'posts' => Prop::scroll([], static fn(): string => 'invalid'),
+                    ],
+                    'v1',
+                ),
+            );
     }
 
     /**

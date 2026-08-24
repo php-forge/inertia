@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
  * Unit tests for {@see Prop} factory values and immutable modifier composition.
  *
  * {@see PropProvider} for test case data providers.
+ *
+ * @since 0.1.0
  */
 #[Group('prop')]
 final class PropTest extends TestCase

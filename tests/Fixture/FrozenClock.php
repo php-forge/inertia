@@ -7,6 +7,9 @@ namespace PHPForge\Inertia\Tests\Fixture;
 use DateTimeImmutable;
 use PHPForge\Inertia\Clock\Clock;
 
+/**
+ * Provides a fixed-time {@see Clock} implementation for deterministic tests.
+ */
 final readonly class FrozenClock implements Clock
 {
     public function __construct(private DateTimeImmutable $now) {}

@@ -26,22 +26,23 @@ final class ProtocolPageTest extends TestCase
     public function testCallbackCanReturnOptionalPropWithoutResolvingItsValueOnFullVisit(): void
     {
         $calls = new CallRecorder();
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Dashboard',
-                [
-                    'dynamic' => static fn(): OptionalProp => Prop::optional(
-                        static function () use ($calls): string {
-                            $calls->record();
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'dynamic' => static fn(): OptionalProp => Prop::optional(
+                            static function () use ($calls): string {
+                                $calls->record();
 
-                            return 'hidden';
-                        },
-                    ),
-                ],
-                'v1',
-            ),
-        );
+                                return 'hidden';
+                            },
+                        ),
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InitialPageResult::class,
@@ -62,17 +63,18 @@ final class ProtocolPageTest extends TestCase
 
     public function testExpandsJsonSerializableAndObjectProps(): void
     {
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Dashboard',
-                [
-                    'serializable' => new JsonSerializableStub(['ratio' => 1.5]),
-                    'object' => (object) ['name' => 'Ada'],
-                ],
-                'v1',
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'serializable' => new JsonSerializableStub(['ratio' => 1.5]),
+                        'object' => (object) ['name' => 'Ada'],
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InitialPageResult::class,
@@ -92,19 +94,20 @@ final class ProtocolPageTest extends TestCase
 
     public function testExposesDistinctSharedRootKeysForDotNotationProps(): void
     {
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Dashboard',
-                [],
-                'v1',
-                sharedProps: [
-                    'auth.user' => ['id' => 1],
-                    'auth.permissions' => ['view'],
-                    'settings.theme' => 'dark',
-                ],
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Dashboard',
+                    [],
+                    'v1',
+                    sharedProps: [
+                        'auth.user' => ['id' => 1],
+                        'auth.permissions' => ['view'],
+                        'settings.theme' => 'dark',
+                    ],
+                ),
+            );
 
         self::assertInstanceOf(
             InitialPageResult::class,
@@ -120,16 +123,17 @@ final class ProtocolPageTest extends TestCase
 
     public function testHidesSharedPropMetadataWhenConfigured(): void
     {
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Dashboard',
-                [],
-                'v1',
-                sharedProps: ['auth.user' => ['id' => 1]],
-                exposeSharedProps: false,
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Dashboard',
+                    [],
+                    'v1',
+                    sharedProps: ['auth.user' => ['id' => 1]],
+                    exposeSharedProps: false,
+                ),
+            );
 
         self::assertInstanceOf(
             InitialPageResult::class,
@@ -150,15 +154,16 @@ final class ProtocolPageTest extends TestCase
 
     public function testMapsErrorsIntoRequestedBag(): void
     {
-        $result = (new Protocol())->page(
-            self::request(
-                [
-                    'X-Inertia' => 'true',
-                    'X-Inertia-Error-Bag' => 'profile',
-                ],
-            ),
-            new PageInput('Dashboard', [], 'v1', errors: ['email' => ['Invalid', 'Required']]),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Error-Bag' => 'profile',
+                    ],
+                ),
+                new PageInput('Dashboard', [], 'v1', errors: ['email' => ['Invalid', 'Required']]),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -174,13 +179,16 @@ final class ProtocolPageTest extends TestCase
 
     public function testNumericVersionHeaderMatchesIntegerPageVersion(): void
     {
-        $result = (new Protocol())->page(
-            self::request([
-                'X-Inertia' => 'true',
-                'X-Inertia-Version' => '7',
-            ]),
-            new PageInput('Dashboard', [], 7),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Version' => '7',
+                    ],
+                ),
+                new PageInput('Dashboard', [], 7),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -283,52 +291,53 @@ final class ProtocolPageTest extends TestCase
             ],
         );
 
-        $result = (new Protocol())->page(
-            $request,
-            new PageInput(
-                'Dashboard',
-                [
-                    'stats' => [
-                        'public' => static function () use ($calls): int {
-                            $calls->record('public');
+        $result = (new Protocol())
+            ->page(
+                $request,
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'stats' => [
+                            'public' => static function () use ($calls): int {
+                                $calls->record('public');
 
-                            return 10;
+                                return 10;
+                            },
+                            'private' => static function () use ($calls): int {
+                                $calls->record('private');
+
+                                return 99;
+                            },
+                        ],
+                        'settings.theme' => static function () use ($calls): string {
+                            $calls->record('theme');
+
+                            return 'dark';
                         },
-                        'private' => static function () use ($calls): int {
-                            $calls->record('private');
-
-                            return 99;
-                        },
-                    ],
-                    'settings.theme' => static function () use ($calls): string {
-                        $calls->record('theme');
-
-                        return 'dark';
-                    },
-                    'unselected' => static function () use ($calls): string {
-                        $calls->record('unselected');
-
-                        return 'never';
-                    },
-                    'nested' => [
-                        'ordinary' => static function () use ($calls): string {
-                            $calls->record('ordinary');
+                        'unselected' => static function () use ($calls): string {
+                            $calls->record('unselected');
 
                             return 'never';
                         },
-                        'token' => Prop::always(static fn(): string => 'csrf-token'),
-                    ],
-                    'plainNested' => [
-                        'ordinary' => static function () use ($calls): string {
-                            $calls->record('plain-nested');
+                        'nested' => [
+                            'ordinary' => static function () use ($calls): string {
+                                $calls->record('ordinary');
 
-                            return 'never';
-                        },
+                                return 'never';
+                            },
+                            'token' => Prop::always(static fn(): string => 'csrf-token'),
+                        ],
+                        'plainNested' => [
+                            'ordinary' => static function () use ($calls): string {
+                                $calls->record('plain-nested');
+
+                                return 'never';
+                            },
+                        ],
                     ],
-                ],
-                'v1',
-            ),
-        );
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -354,28 +363,31 @@ final class ProtocolPageTest extends TestCase
 
     public function testPartialPathMatchingUsesCompleteDotSegments(): void
     {
-        $result = (new Protocol())->page(
-            self::request([
-                'X-Inertia' => 'true',
-                'X-Inertia-Partial-Component' => 'Dashboard',
-                'X-Inertia-Partial-Data' => 'user,teamwork.profile,account',
-                'X-Inertia-Partial-Except' => 'account.secret',
-            ]),
-            new PageInput(
-                'Dashboard',
-                [
-                    'user' => 'Ada',
-                    'users' => 'not selected',
-                    'team' => ['profile' => 'not selected'],
-                    'account' => [
-                        'profile' => 'visible',
-                        'secret' => 'hidden',
-                        'secrets' => 'visible',
+        $result = (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Partial-Component' => 'Dashboard',
+                        'X-Inertia-Partial-Data' => 'user,teamwork.profile,account',
+                        'X-Inertia-Partial-Except' => 'account.secret',
                     ],
-                ],
-                'v1',
-            ),
-        );
+                ),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'user' => 'Ada',
+                        'users' => 'not selected',
+                        'team' => ['profile' => 'not selected'],
+                        'account' => [
+                            'profile' => 'visible',
+                            'secret' => 'hidden',
+                            'secrets' => 'visible',
+                        ],
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -418,23 +430,24 @@ final class ProtocolPageTest extends TestCase
     }
     public function testProducesInitialPageWithExplicitInputs(): void
     {
-        $result = (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                component: 'Dashboard',
-                props: [
-                    'answer' => static fn(): int => 42,
-                    'profile.name' => 'Ada',
-                ],
-                version: 'v1',
-                sharedProps: ['auth' => ['id' => 7]],
-                errors: ['email' => 'Invalid'],
-                flash: ['message' => 'Saved', 'level' => 'success'],
-                encryptHistory: true,
-                clearHistory: true,
-                preserveFragment: true,
-            ),
-        );
+        $result = (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    component: 'Dashboard',
+                    props: [
+                        'answer' => static fn(): int => 42,
+                        'profile.name' => 'Ada',
+                    ],
+                    version: 'v1',
+                    sharedProps: ['auth' => ['id' => 7]],
+                    errors: ['email' => 'Invalid'],
+                    flash: ['message' => 'Saved', 'level' => 'success'],
+                    encryptHistory: true,
+                    clearHistory: true,
+                    preserveFragment: true,
+                ),
+            );
 
         self::assertInstanceOf(
             InitialPageResult::class,
@@ -492,23 +505,26 @@ final class ProtocolPageTest extends TestCase
 
     public function testResolvedCallbackArrayIncludesAllChildrenOnNestedPartialRequest(): void
     {
-        $result = (new Protocol())->page(
-            self::request([
-                'X-Inertia' => 'true',
-                'X-Inertia-Partial-Component' => 'Dashboard',
-                'X-Inertia-Partial-Data' => 'profile.name',
-            ]),
-            new PageInput(
-                'Dashboard',
-                [
-                    'profile' => static fn(): array => [
-                        'name' => 'Ada',
-                        'role' => 'administrator',
+        $result = (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Partial-Component' => 'Dashboard',
+                        'X-Inertia-Partial-Data' => 'profile.name',
                     ],
-                ],
-                'v1',
-            ),
-        );
+                ),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'profile' => static fn(): array => [
+                            'name' => 'Ada',
+                            'role' => 'administrator',
+                        ],
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -547,23 +563,24 @@ final class ProtocolPageTest extends TestCase
     public function testReturnsVersionConflictBeforeResolvingProps(): void
     {
         $resolved = false;
-        $result = (new Protocol())->page(
-            self::request(
-                [
-                    'X-Inertia' => 'true',
-                    'X-Inertia-Version' => 'old',
-                ],
-            ),
-            new PageInput(
-                'Dashboard',
-                ['expensive' => static function () use (&$resolved): int {
-                    $resolved = true;
+        $result = (new Protocol())
+            ->page(
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Version' => 'old',
+                    ],
+                ),
+                new PageInput(
+                    'Dashboard',
+                    ['expensive' => static function () use (&$resolved): int {
+                        $resolved = true;
 
-                    return 42;
-                }],
-                'current',
-            ),
-        );
+                        return 42;
+                    }],
+                    'current',
+                ),
+            );
 
         self::assertInstanceOf(
             VersionConflictResult::class,
@@ -602,34 +619,36 @@ final class ProtocolPageTest extends TestCase
             Message::PROP_PATH_CONFLICT->getMessage('profile.name', 'profile'),
         );
 
-        (new Protocol())->page(
-            self::request(),
-            new PageInput(
-                'Dashboard',
-                [
-                    'profile' => 'not-an-array',
-                    'profile.name' => 'Ada',
-                ],
-                'v1',
-            ),
-        );
+        (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'profile' => 'not-an-array',
+                        'profile.name' => 'Ada',
+                    ],
+                    'v1',
+                ),
+            );
     }
 
     public function testThrowPropResolutionExceptionForCallbackFailure(): void
     {
         try {
-            (new Protocol())->page(
-                self::request(),
-                new PageInput(
-                    'Dashboard',
-                    [
-                        'profile' => [
-                            'avatar' => static fn(): never => throw new RuntimeException('Unavailable'),
+            (new Protocol())
+                ->page(
+                    self::request(),
+                    new PageInput(
+                        'Dashboard',
+                        [
+                            'profile' => [
+                                'avatar' => static fn(): never => throw new RuntimeException('Unavailable'),
+                            ],
                         ],
-                    ],
-                    'v1',
-                ),
-            );
+                        'v1',
+                    ),
+                );
 
             self::fail(
                 'Expected prop resolution to fail.',
@@ -659,10 +678,11 @@ final class ProtocolPageTest extends TestCase
         }
 
         try {
-            (new Protocol())->page(
-                self::request(),
-                new PageInput('Dashboard', [], 'v1', flash: ['resource' => $resource]),
-            );
+            (new Protocol())
+                ->page(
+                    self::request(),
+                    new PageInput('Dashboard', [], 'v1', flash: ['resource' => $resource]),
+                );
 
             self::fail(
                 'Expected flash normalization to fail.',
@@ -688,10 +708,11 @@ final class ProtocolPageTest extends TestCase
             ),
         );
 
-        (new Protocol())->page(
-            self::request(),
-            new PageInput('Dashboard', ['invalid' => new ArrayObject()], 'v1'),
-        );
+        (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput('Dashboard', ['invalid' => new ArrayObject()], 'v1'),
+            );
     }
 
     public function testThrowPropResolutionExceptionWhenCallbackLimitIsExceeded(): void
@@ -704,10 +725,11 @@ final class ProtocolPageTest extends TestCase
             ),
         );
 
-        (new Protocol())->page(
-            self::request(),
-            new PageInput('Dashboard', ['nested' => self::nestedCallbacks(65)], 'v1'),
-        );
+        (new Protocol())
+            ->page(
+                self::request(),
+                new PageInput('Dashboard', ['nested' => self::nestedCallbacks(65)], 'v1'),
+            );
     }
 
     public function testVersionHeaderDoesNotConflictForNonGetRequests(): void
@@ -721,7 +743,8 @@ final class ProtocolPageTest extends TestCase
                 'X-Inertia-Version' => 'old',
             ],
         );
-        $result = (new Protocol())->page($request, new PageInput('Dashboard', [], 'current'));
+        $result = (new Protocol())
+            ->page($request, new PageInput('Dashboard', [], 'current'));
 
         self::assertInstanceOf(
             InertiaPageResult::class,

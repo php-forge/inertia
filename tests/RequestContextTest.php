@@ -20,7 +20,11 @@ final class RequestContextTest extends TestCase
 {
     public function testDefaultsOptionalProtocolHeaders(): void
     {
-        $context = new RequestContext('POST', '/users', 'http://localhost/users');
+        $context = new RequestContext(
+            'POST',
+            '/users',
+            'http://localhost/users',
+        );
 
         self::assertFalse(
             $context->isGet(),
