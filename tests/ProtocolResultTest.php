@@ -23,10 +23,11 @@ final class ProtocolResultTest extends TestCase
 {
     public function testAbsoluteFragmentRedirectRetainsAbsoluteUrl(): void
     {
-        $result = (new Protocol())->redirect(
-            self::request('GET', ['X-Inertia' => 'true']),
-            'https://other.example/users#profile',
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request('GET', ['X-Inertia' => 'true']),
+                'https://other.example/users#profile',
+            );
 
         self::assertInstanceOf(
             FragmentRedirectResult::class,
@@ -42,10 +43,11 @@ final class ProtocolResultTest extends TestCase
 
     public function testAbsoluteStandardRedirectIsAccepted(): void
     {
-        $result = (new Protocol())->redirect(
-            self::request('GET'),
-            'HTTPS://other.example/users',
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request('GET'),
+                'HTTPS://other.example/users',
+            );
 
         self::assertInstanceOf(
             RedirectResult::class,
@@ -62,7 +64,8 @@ final class ProtocolResultTest extends TestCase
     #[DataProviderExternal(ProtocolResultProvider::class, 'redirectStatuses')]
     public function testAcceptsEveryRedirectStatus(int $statusCode): void
     {
-        $result = (new Protocol())->redirect(self::request('GET'), '/users', $statusCode);
+        $result = (new Protocol())
+            ->redirect(self::request('GET'), '/users', $statusCode);
 
         self::assertSame(
             $statusCode,
@@ -79,7 +82,8 @@ final class ProtocolResultTest extends TestCase
             'https://example.com:8443/current',
             ['X-Inertia' => 'true'],
         );
-        $result = (new Protocol())->redirect($request, '/users#profile');
+        $result = (new Protocol())
+            ->redirect($request, '/users#profile');
 
         self::assertInstanceOf(
             FragmentRedirectResult::class,
@@ -95,10 +99,11 @@ final class ProtocolResultTest extends TestCase
 
     public function testFragmentRedirectUsesAbsoluteControlUrlForInertia(): void
     {
-        $result = (new Protocol())->redirect(
-            self::request('GET', ['X-Inertia' => 'true']),
-            '/users#profile',
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request('GET', ['X-Inertia' => 'true']),
+                '/users#profile',
+            );
 
         self::assertInstanceOf(
             FragmentRedirectResult::class,
@@ -122,11 +127,12 @@ final class ProtocolResultTest extends TestCase
 
     public function testGetRedirectRetainsStatusCode(): void
     {
-        $result = (new Protocol())->redirect(
-            self::request('GET', ['X-Inertia' => 'true']),
-            '/users',
-            307,
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request('GET', ['X-Inertia' => 'true']),
+                '/users',
+                307,
+            );
 
         self::assertInstanceOf(
             RedirectResult::class,
@@ -142,10 +148,11 @@ final class ProtocolResultTest extends TestCase
 
     public function testLocationUsesConflictControlResponseForInertia(): void
     {
-        $result = (new Protocol())->location(
-            self::request('GET', ['X-Inertia' => 'true']),
-            'https://other.example/path',
-        );
+        $result = (new Protocol())
+            ->location(
+                self::request('GET', ['X-Inertia' => 'true']),
+                'https://other.example/path',
+            );
 
         self::assertInstanceOf(
             LocationResult::class,
@@ -174,10 +181,11 @@ final class ProtocolResultTest extends TestCase
 
     public function testLocationUsesStandardRedirectOutsideInertia(): void
     {
-        $result = (new Protocol())->location(
-            self::request('GET'),
-            'https://other.example/path',
-        );
+        $result = (new Protocol())
+            ->location(
+                self::request('GET'),
+                'https://other.example/path',
+            );
 
         self::assertInstanceOf(
             RedirectResult::class,
@@ -202,10 +210,11 @@ final class ProtocolResultTest extends TestCase
     #[DataProviderExternal(ProtocolResultProvider::class, 'inertiaMutationMethods')]
     public function testMutationRedirectBecomesSeeOtherForInertia(string $method, string $message): void
     {
-        $result = (new Protocol())->redirect(
-            self::request($method, ['X-Inertia' => 'true']),
-            '/users',
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request($method, ['X-Inertia' => 'true']),
+                '/users',
+            );
 
         self::assertInstanceOf(
             RedirectResult::class,
@@ -221,16 +230,17 @@ final class ProtocolResultTest extends TestCase
 
     public function testPrefetchRetainsNormalFragmentRedirect(): void
     {
-        $result = (new Protocol())->redirect(
-            self::request(
-                'GET',
-                [
-                    'X-Inertia' => 'true',
-                    'Purpose' => 'prefetch',
-                ],
-            ),
-            '/users#profile',
-        );
+        $result = (new Protocol())
+            ->redirect(
+                self::request(
+                    'GET',
+                    [
+                        'X-Inertia' => 'true',
+                        'Purpose' => 'prefetch',
+                    ],
+                ),
+                '/users#profile',
+            );
 
         self::assertInstanceOf(
             RedirectResult::class,
@@ -253,7 +263,8 @@ final class ProtocolResultTest extends TestCase
         array $headers,
         int $statusCode,
     ): void {
-        $result = (new Protocol())->redirect(self::request($method, $headers), '/users', $statusCode);
+        $result = (new Protocol())
+            ->redirect(self::request($method, $headers), '/users', $statusCode);
 
         self::assertSame(
             $statusCode,
@@ -264,7 +275,8 @@ final class ProtocolResultTest extends TestCase
 
     public function testStandardRedirectDefaultsToFoundStatus(): void
     {
-        $result = (new Protocol())->redirect(self::request('GET'), '/users');
+        $result = (new Protocol())
+            ->redirect(self::request('GET'), '/users');
 
         self::assertSame(
             302,
@@ -273,6 +285,9 @@ final class ProtocolResultTest extends TestCase
         );
     }
 
+    /**
+     * @param 'location'|'redirect' $operation
+     */
     #[DataProviderExternal(ProtocolResultProvider::class, 'invalidResponses')]
     public function testThrowInvalidArgumentExceptionForInvalidResponse(
         string $operation,

@@ -6,17 +6,33 @@ namespace PHPForge\Inertia;
 
 use PHPForge\Inertia\Exception\{InvalidPageInputException, Message};
 
+use function array_is_list;
+use function array_key_exists;
+use function array_keys;
+use function explode;
+use function in_array;
 use function is_array;
 use function is_string;
+use function preg_match;
+use function trim;
 
+/**
+ * Carries validated application data and page options into an Inertia page operation.
+ */
 final readonly class PageInput
 {
     /**
-     * @param array<string, mixed> $props
-     * @param array<string, mixed> $sharedProps
-     * @param array<string, string|list<string>> $errors
-     * @param array<string, mixed> $flash
-     * @phpstan-param array<array-key, mixed> $errors
+     * @param string $component The name of the front-end component to render.
+     * @param array<string, mixed> $props Page-specific props, merged over shared props during resolution.
+     * @param string|int $version The current page version, used to detect stale pages on the client.
+     * @param array<string, mixed> $sharedProps Props shared across all pages, overridden by page-specific props.
+     * @param array<array-key, mixed> $errors Validation error messages keyed by field name.
+     * @param array<string, mixed> $flash Flash data passed alongside the page response.
+     * @param bool $encryptHistory Whether to encrypt the page history for this request.
+     * @param bool $clearHistory Whether to clear the page history for this request.
+     * @param bool $preserveFragment Whether to preserve the URL fragment for this request.
+     * @param bool $exposeSharedProps Whether to expose the shared props to the client for awareness, even if they are
+     * not used by the page component.
      */
     public function __construct(
         public string $component,
@@ -69,6 +85,14 @@ final readonly class PageInput
         }
     }
 
+    /**
+     * Validates a prop or shared-prop key.
+     *
+     * @param mixed $key The candidate key; must be a non-empty string without control characters or empty segments.
+     * @param string $label Human-readable label used in the error message (for example, `'prop'` or `'shared prop'`).
+     *
+     * @throws InvalidPageInputException When `$key` fails validation.
+     */
     private static function validateKey(mixed $key, string $label): void
     {
         if (
@@ -84,7 +108,9 @@ final readonly class PageInput
     }
 
     /**
-     * @param array<array-key, mixed> $values
+     * Validates every key in `$values` using {@see validateKey()}.
+     *
+     * @param array<array-key, mixed> $values The prop map whose keys to validate.
      */
     private static function validateKeys(array $values, string $label): void
     {

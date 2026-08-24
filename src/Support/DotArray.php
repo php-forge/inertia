@@ -7,16 +7,25 @@ namespace PHPForge\Inertia\Support;
 use PHPForge\Inertia\Exception\{InvalidPageInputException, Message};
 
 use function array_key_exists;
+use function array_pop;
+use function array_reverse;
+use function array_shift;
 use function is_array;
+use function str_contains;
 
+/**
+ * Expands dot-notated page keys into nested arrays while detecting conflicting paths.
+ */
 final class DotArray
 {
     private function __construct() {}
 
     /**
-     * @param array<string, mixed> $values
+     * Expands dot-notated keys in `$values` into a nested associative array.
      *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $values The flat, dot-notated key-value map to expand.
+     *
+     * @return array<string, mixed> The expanded nested associative array.
      */
     public static function expand(array $values): array
     {
@@ -36,10 +45,12 @@ final class DotArray
     }
 
     /**
-     * @param array<string, mixed> $values
-     * @param non-empty-list<string> $segments
+     * Assigns a value into `$values` at the path described by `$segments`, handling nested creation.
      *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $values The current result array to write into.
+     * @param non-empty-list<string> $segments Remaining path segments to traverse.
+     *
+     * @return array<string, mixed> The updated result array with the value written at the given dot-notated path.
      */
     private static function assign(array $values, array $segments, mixed $value, string $path): array
     {
@@ -65,10 +76,12 @@ final class DotArray
     }
 
     /**
-     * @param array<array-key, mixed> $values
-     * @param non-empty-list<string> $segments
+     * Assigns a value into a nested array at the path described by `$segments`, rebuilding parent nodes.
      *
-     * @return array<array-key, mixed>
+     * @param array<array-key, mixed> $values The current nested array level.
+     * @param non-empty-list<string> $segments Remaining path segments below the root.
+     *
+     * @return array<array-key, mixed> The updated nested array with the value inserted at the final segment.
      */
     private static function assignNested(array $values, array $segments, mixed $value, string $path): array
     {

@@ -8,18 +8,41 @@ use JsonSerializable;
 use PHPForge\Inertia\Exception\{InvalidPropException, Message};
 use stdClass;
 
+use function get_object_vars;
+use function is_array;
 use function is_bool;
+use function is_finite;
 use function is_float;
 use function is_int;
 use function is_string;
 use function preg_match;
 
+/**
+ * Normalizes prop values into finite, UTF-8, JSON-compatible data.
+ */
 final class JsonValue
 {
+    /**
+     * Maximum recursion depth for normalizing nested structures.
+     */
     private const int MAX_DEPTH = 512;
 
     private function __construct() {}
 
+    /**
+     * Normalizes `$value` into a finite, UTF-8, JSON-compatible scalar, array, or `null`.
+     *
+     * Recursively resolves {@see JsonSerializable} and `stdClass` values. Rejects non-finite floats, invalid UTF-8
+     * strings, and types that have no JSON representation.
+     *
+     * @param mixed $value The prop value to normalize.
+     * @param string $path  Dot-notation path used in exception messages to identify the failing prop.
+     * @param int $depth Current recursion depth; throws when it exceeds 512.
+     *
+     * @throws InvalidPropException When the value cannot be represented as JSON.
+     *
+     * @return mixed Normalized JSON-compatible value.
+     */
     public static function normalize(mixed $value, string $path, int $depth = 0): mixed
     {
         if ($depth > self::MAX_DEPTH) {

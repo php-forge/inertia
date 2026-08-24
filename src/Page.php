@@ -7,17 +7,19 @@ namespace PHPForge\Inertia;
 use JsonSerializable;
 use stdClass;
 
+use function is_array;
+
 /**
- * Immutable protocol page data ready for JSON serialization.
+ * Represents an immutable Inertia page payload serialized by framework adapters.
  */
 final readonly class Page implements JsonSerializable
 {
     /**
-     * @param array<string, mixed> $props
-     * @param list<string> $mergeProps
-     * @param list<string> $prependProps
-     * @param list<string> $deepMergeProps
-     * @param list<string> $matchPropsOn
+     * @param array<string, mixed> $props Resolved page props passed to the front-end component.
+     * @param list<string> $mergeProps Prop paths the client should merge into its existing state.
+     * @param list<string> $prependProps Prop paths the client should prepend to its existing state.
+     * @param list<string> $deepMergeProps Prop paths the client should deep-merge recursively.
+     * @param list<string> $matchPropsOn Prop paths used as match keys during client-side merging.
      * @param array<
      *   string,
      *   array{
@@ -27,12 +29,13 @@ final readonly class Page implements JsonSerializable
      *     currentPage: int|string|null,
      *     reset: bool
      *   }
-     * > $scrollProps
-     * @param array<string, list<string>> $deferredProps
-     * @param list<string> $rescuedProps
-     * @param list<string> $sharedProps
-     * @param array<string, array{prop: string, expiresAt: int|null}> $onceProps
-     * @param array<string, mixed> $flash
+     * > $scrollProps Per-prop infinite-scroll pagination metadata keyed by prop path.
+     * @param array<string, list<string>> $deferredProps Groups of prop paths loaded lazily, keyed by group name.
+     * @param list<string> $rescuedProps Prop paths whose callbacks failed but were rescued by a deferred loader.
+     * @param list<string> $sharedProps Top-level keys sourced from shared props, exposed for client awareness.
+     * @param array<string, array{prop: string, expiresAt: int|null}> $onceProps Once-prop cache metadata keyed by cache
+     * key.
+     * @param array<string, mixed> $flash Flash data passed alongside the page response.
      */
     public function __construct(
         public string $component,
@@ -55,7 +58,9 @@ final readonly class Page implements JsonSerializable
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * Serializes the page payload as a JSON-compatible array.
+     *
+     * @return array<string, mixed> The page payload as a JSON-compatible associative array.
      */
     public function jsonSerialize(): array
     {
@@ -63,7 +68,9 @@ final readonly class Page implements JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>
+     * Returns the page as an associative array for the framework adapter.
+     *
+     * @return array<string, mixed> The page payload as an associative array for the framework adapter.
      */
     public function toArray(): array
     {
@@ -118,7 +125,9 @@ final readonly class Page implements JsonSerializable
     }
 
     /**
-     * @param array<array-key, mixed> $value
+     * Casts an associative array to a plain object for JSON serialization.
+     *
+     * @param array<array-key, mixed> $value The associative array to cast to a plain object.
      */
     private static function asObject(array $value): stdClass
     {

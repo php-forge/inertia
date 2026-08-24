@@ -6,12 +6,22 @@ namespace PHPForge\Inertia\Prop;
 
 use PHPForge\Inertia\Exception\{InvalidPropException, Message};
 
+use function array_values;
+use function is_string;
+
+/**
+ * Wraps a value that merges with existing client-side data during partial reloads instead of replacing it.
+ */
 final readonly class MergeProp implements PropValue
 {
     /**
-     * @param list<string> $appendPaths
-     * @param list<string> $prependPaths
-     * @param list<string> $matchOn
+     * @param mixed $value The value to merge.
+     * @param bool $deep Whether to perform a deep merge.
+     * @param bool $appendAtRoot Whether to append at the root level (true) or prepend at the root level (false) when no
+     * paths are specified.
+     * @param list<string> $appendPaths The paths to append to.
+     * @param list<string> $prependPaths The paths to prepend to.
+     * @param list<string> $matchOn The paths to match on for deduplication.
      */
     public function __construct(
         private mixed $value,
@@ -32,7 +42,15 @@ final readonly class MergeProp implements PropValue
         }
     }
 
-    public function append(string $path = '', string|null $matchOn = null): self
+    /**
+     * Returns a new instance with an append operation at the given path.
+     *
+     * @param string $path The path to append to, or empty string for root.
+     * @param string|null $matchOn Optional match key for deduplication.
+     *
+     * @return MergeProp A new MergeProp with an append operation at the given path.
+     */
+    public function append(string $path = '', string|null $matchOn = null): MergeProp
     {
         if ($path === '') {
             return new self(
@@ -62,19 +80,31 @@ final readonly class MergeProp implements PropValue
     }
 
     /**
-     * @return list<string>
+     * Returns the list of append paths.
+     *
+     * @return list<string> List of append paths.
      */
     public function appendPaths(): array
     {
         return $this->appendPaths;
     }
 
+    /**
+     * Returns `true` if the merge appends at the root level.
+     *
+     * @return bool `true` if the merge appends at the root level, `false` otherwise.
+     */
     public function appendsAtRoot(): bool
     {
         return !$this->deep && $this->appendAtRoot && $this->appendPaths === [] && $this->prependPaths === [];
     }
 
-    public function deepMerge(): self
+    /**
+     * Returns a new instance with deep merge enabled.
+     *
+     * @return MergeProp A new MergeProp with deep merge enabled.
+     */
+    public function deepMerge(): MergeProp
     {
         return new self(
             $this->value,
@@ -86,16 +116,24 @@ final readonly class MergeProp implements PropValue
         );
     }
 
+    /**
+     * Returns `true` if deep merge is enabled.
+     *
+     * @return bool `true` if deep merge is enabled, `false` otherwise.
+     */
     public function isDeep(): bool
     {
         return $this->deep;
     }
 
     /**
-     * @param string|list<string> $paths
-     * @phpstan-param string|array<array-key, mixed> $paths
+     * Returns a new instance with match paths for deduplication.
+     *
+     * @param string|array<array-key, mixed> $paths Match keys to add.
+     *
+     * @return MergeProp A new MergeProp with match paths for deduplication.
      */
-    public function matchOn(string|array $paths): self
+    public function matchOn(string|array $paths): MergeProp
     {
         $paths = is_string($paths) ? [$paths] : array_values($paths);
 
@@ -119,19 +157,34 @@ final readonly class MergeProp implements PropValue
     }
 
     /**
-     * @return list<string>
+     * Returns the list of match paths.
+     *
+     * @return list<string> List of match paths.
      */
     public function matchPaths(): array
     {
         return $this->matchOn;
     }
 
+    /**
+     * Returns a new `OnceProp` wrapper around this merge prop.
+     *
+     * @return OnceProp A new OnceProp wrapper around this merge prop.
+     */
     public function once(): OnceProp
     {
         return new OnceProp($this);
     }
 
-    public function prepend(string $path = '', string|null $matchOn = null): self
+    /**
+     * Returns a new instance with a prepend operation at the given path.
+     *
+     * @param string $path The path to prepend to, or empty string for root.
+     * @param string|null $matchOn Optional match key for deduplication.
+     *
+     * @return MergeProp A new MergeProp with a prepend operation at the given path.
+     */
+    public function prepend(string $path = '', string|null $matchOn = null): MergeProp
     {
         if ($path === '') {
             return new self(
@@ -161,33 +214,54 @@ final readonly class MergeProp implements PropValue
     }
 
     /**
-     * @return list<string>
+     * Returns the list of prepend paths.
+     *
+     * @return list<string> List of prepend paths.
      */
     public function prependPaths(): array
     {
         return $this->prependPaths;
     }
 
+    /**
+     * Returns `true` if the merge prepends at the root level.
+     *
+     * @return bool `true` if the merge prepends at the root level, `false` otherwise.
+     */
     public function prependsAtRoot(): bool
     {
         return !$this->deep && !$this->appendAtRoot && $this->appendPaths === [] && $this->prependPaths === [];
     }
 
+    /**
+     * Returns the wrapped value.
+     *
+     * @return mixed The wrapped value.
+     */
     public function value(): mixed
     {
         return $this->value;
     }
 
     /**
-     * @param list<string> $items
+     * Returns a unique list of items.
      *
-     * @return list<string>
+     * @param list<string> $items The list of items to make unique.
+     *
+     * @return list<string> A unique list of items.
      */
     private static function unique(array $items): array
     {
         return array_values(array_unique($items));
     }
 
+    /**
+     * Validates a path string.
+     *
+     * @param string $path The path string to validate.
+     *
+     * @throws InvalidPropException If the path is invalid.
+     */
     private static function validatePath(string $path): void
     {
         if (

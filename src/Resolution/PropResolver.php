@@ -14,59 +14,71 @@ use PHPForge\Inertia\Result\RescuedPropFailure;
 use PHPForge\Inertia\Support\{DotArray, JsonValue};
 use Throwable;
 
+use function array_keys;
+use function array_replace;
+use function array_unique;
+use function array_values;
+use function explode;
 use function in_array;
 use function is_array;
 use function is_int;
+use function str_starts_with;
 
+/**
+ * Resolves page props and collects the metadata required by the current request.
+ */
 final class PropResolver
 {
     /**
-     * @var list<string>
+     * @var list<string> Prop paths the client should deep-merge recursively into its existing state.
      */
     private array $deepMergeProps = [];
     /**
-     * @var array<string, list<string>>
+     * @var array<string, list<string>> Deferred prop paths collected during resolution, keyed by group name.
      */
     private array $deferredProps = [];
     /**
-     * @var list<string>|null
+     * @var list<string>|null Prop paths excluded by the partial request, or `null` outside a partial reload.
      */
     private readonly array|null $except;
+    /**
+     * @var bool Whether the current request is a partial reload for the given component.
+     */
     private readonly bool $isPartial;
     /**
-     * @var list<string>
+     * @var list<string> Once-prop cache keys the client reports as already loaded.
      */
     private readonly array $loadedOnceProps;
     /**
-     * @var list<string>
+     * @var list<string> Prop paths used as match keys during client-side merging.
      */
     private array $matchPropsOn = [];
     /**
-     * @var list<string>
+     * @var list<string> Prop paths the client should merge into its existing state.
      */
     private array $mergeProps = [];
     /**
-     * @var array<string, array{prop: string, expiresAt: int|null}>
+     * @var array<string, array{prop: string, expiresAt: int|null}> Once-prop cache metadata, keyed by cache key.
      */
     private array $onceProps = [];
     /**
-     * @var list<string>|null
+     * @var list<string>|null Prop paths requested by the partial request, or `null` outside a partial reload.
      */
     private readonly array|null $only;
     /**
-     * @var list<string>
+     * @var list<string> Prop paths the client should prepend to its existing state.
      */
     private array $prependProps = [];
     /**
-     * @var list<RescuedPropFailure>
+     * @var list<RescuedPropFailure> Prop failures captured during resolution for adapter reporting.
      */
     private array $rescuedFailures = [];
     /**
-     * @var list<string>
+     * @var list<string> Prop paths whose callbacks failed but were rescued by a deferred loader.
      */
     private array $rescuedProps = [];
     /**
-     * @var list<string>
+     * @var list<string> Prop paths the client requests to reset to their initial server values.
      */
     private readonly array $resetProps;
 
@@ -80,10 +92,15 @@ final class PropResolver
      *     currentPage: int|string|null,
      *     reset: bool
      *   }
-     * >
+     * > Per-prop infinite-scroll pagination metadata, keyed by prop path.
      */
     private array $scrollProps = [];
 
+    /**
+     * @param RequestContext $request Validated request context from the framework adapter.
+     * @param string $component Inertia component name matched against the partial-reload header.
+     * @param Clock $clock Clock used to compute once-prop expiration timestamps.
+     */
     public function __construct(
         private readonly RequestContext $request,
         private readonly string $component,
@@ -100,6 +117,15 @@ final class PropResolver
         $this->loadedOnceProps = $request->exceptOnceProps();
     }
 
+    /**
+     * Resolves all page props and returns the data needed to construct an Inertia page.
+     *
+     * @param PageInput $input Validated page data, props, and options.
+     *
+     * @throws PropResolutionException when a prop closure throws and the prop is not deferred.
+     *
+     * @return ResolvedPageData Resolved page data and all metadata required for the current request.
+     */
     public function resolve(PageInput $input): ResolvedPageData
     {
         $combined = array_replace($input->sharedProps, $input->props);
@@ -117,7 +143,9 @@ final class PropResolver
         $props['errors'] = new AlwaysProp($errors);
 
         $resolvedProps = $this->resolveTopLevel($props);
+
         $flash = $this->normalizeFlash($input->flash);
+
         $sharedProps = $input->exposeSharedProps ? $this->sharedPropKeys($input->sharedProps) : [];
 
         return new ResolvedPageData(
@@ -136,6 +164,12 @@ final class PropResolver
         );
     }
 
+    /**
+     * Registers a prop path under the given deferred group, deduplicating entries.
+     *
+     * @param string $group Deferred group name.
+     * @param string $path Dot-notation path of the deferred prop.
+     */
     private function addDeferredProp(string $group, string $path): void
     {
         $this->deferredProps[$group] ??= [];
@@ -143,6 +177,12 @@ final class PropResolver
         $this->deferredProps[$group] = self::unique([...$this->deferredProps[$group], $path]);
     }
 
+    /**
+     * Records deferred, merge, and once metadata for a prop that is excluded from the current response.
+     *
+     * @param PropDefinition $definition Prop definition containing metadata to register.
+     * @param string $path Dot-notation path of the excluded prop.
+     */
     private function collectExcludedMetadata(PropDefinition $definition, string $path): void
     {
         if (
@@ -156,6 +196,12 @@ final class PropResolver
         $this->collectOnceMetadata($definition->once, $path);
     }
 
+    /**
+     * Records merge and scroll metadata for a prop path, skipping reset or excluded partial paths.
+     *
+     * @param PropDefinition $definition Prop definition containing merge and scroll metadata.
+     * @param string $path Dot-notation path of the prop.
+     */
     private function collectMergeMetadata(PropDefinition $definition, string $path): void
     {
         if (
@@ -170,7 +216,7 @@ final class PropResolver
         }
 
         if ($definition->scroll !== null) {
-            $mergePath = $path . '.' . $definition->scroll->wrapper();
+            $mergePath = "{$path}." . $definition->scroll->wrapper();
 
             if ($this->request->infiniteScrollMergeIntent() === 'prepend') {
                 $this->prependProps = self::unique([...$this->prependProps, $mergePath]);
@@ -180,6 +226,12 @@ final class PropResolver
         }
     }
 
+    /**
+     * Registers merge, deep-merge, prepend, and match paths from a {@see MergeProp} modifier.
+     *
+     * @param MergeProp $merge Merge modifier containing paths to register.
+     * @param string $path Dot-notation path of the prop.
+     */
     private function collectMergeProp(MergeProp $merge, string $path): void
     {
         if ($merge->isDeep()) {
@@ -190,19 +242,25 @@ final class PropResolver
             $this->prependProps = self::unique([...$this->prependProps, $path]);
         } else {
             foreach ($merge->appendPaths() as $mergePath) {
-                $this->mergeProps = self::unique([...$this->mergeProps, $path . '.' . $mergePath]);
+                $this->mergeProps = self::unique([...$this->mergeProps, "{$path}.{$mergePath}"]);
             }
 
             foreach ($merge->prependPaths() as $mergePath) {
-                $this->prependProps = self::unique([...$this->prependProps, $path . '.' . $mergePath]);
+                $this->prependProps = self::unique([...$this->prependProps, "{$path}.{$mergePath}"]);
             }
         }
 
         foreach ($merge->matchPaths() as $matchPath) {
-            $this->matchPropsOn = self::unique([...$this->matchPropsOn, $path . '.' . $matchPath]);
+            $this->matchPropsOn = self::unique([...$this->matchPropsOn, "{$path}.{$matchPath}"]);
         }
     }
 
+    /**
+     * Records once-prop cache metadata for the given path, skipping absent or excluded partial paths.
+     *
+     * @param OnceProp|null $once Once-prop modifier containing cache metadata, or `null` if absent.
+     * @param string $path Dot-notation path of the prop.
+     */
     private function collectOnceMetadata(OnceProp|null $once, string $path): void
     {
         if ($once === null || ($this->isPartial && !$this->isIncludedInPartialMetadata($path))) {
@@ -215,6 +273,15 @@ final class PropResolver
         ];
     }
 
+    /**
+     * Records merge, scroll, and once metadata after a prop value has been successfully resolved.
+     *
+     * @param PropDefinition $definition The prop definition.
+     * @param string $path Dot-notation path of the prop.
+     * @param mixed $value The resolved value of the prop.
+     *
+     * @throws InvalidPropException When scroll metadata is not a {@see ScrollMetadata}.
+     */
     private function collectResolvedMetadata(PropDefinition $definition, string $path, mixed $value): void
     {
         $this->collectMergeMetadata($definition, $path);
@@ -235,6 +302,13 @@ final class PropResolver
         $this->collectOnceMetadata($definition->once, $path);
     }
 
+    /**
+     * Returns `true` if the value or any of its nested prop wrappers carries an always flag.
+     *
+     * @param mixed $value The value to check for always-prop wrappers.
+     *
+     * @return bool `true` if the value or any nested prop is always, `false` otherwise.
+     */
     private function containsAlways(mixed $value): bool
     {
         $definition = PropDefinition::from($value);
@@ -256,6 +330,13 @@ final class PropResolver
         return false;
     }
 
+    /**
+     * Returns the expiration timestamp in milliseconds for the given once-prop, or `null` if it never expires.
+     *
+     * @param OnceProp $once The once-prop to compute the expiration timestamp for.
+     *
+     * @return int|null Expiration timestamp in milliseconds, or `null` if the once-prop never expires.
+     */
     private function expirationTimestamp(OnceProp $once): int|null
     {
         $expiration = $once->expiration();
@@ -275,6 +356,14 @@ final class PropResolver
         return $expiration->getTimestamp() * 1000;
     }
 
+    /**
+     * Returns `true` if the prop should be omitted from a full (non-partial) response and records its metadata.
+     *
+     * @param PropDefinition $definition The prop definition to check for exclusion.
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if the prop should be omitted from a full response, `false` otherwise.
+     */
     private function isExcludedFromFullResponse(PropDefinition $definition, string $path): bool
     {
         if ($this->isPartial) {
@@ -296,6 +385,13 @@ final class PropResolver
         return false;
     }
 
+    /**
+     * Returns `true` if the path falls within the partial request's `only`/`except` metadata filters.
+     *
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if the path is included in the partial request's metadata, `false` otherwise.
+     */
     private function isIncludedInPartialMetadata(string $path): bool
     {
         if ($this->only !== null && !$this->matchesOnly($path)) {
@@ -305,6 +401,13 @@ final class PropResolver
         return $this->except === null || !$this->matchesExcept($path);
     }
 
+    /**
+     * Returns `true` if any `only` path is a descendant of the given path, requiring traversal of its subtree.
+     *
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if any `only` path is a descendant of the given path, `false` otherwise.
+     */
     private function leadsToOnly(string $path): bool
     {
         if ($this->only === null) {
@@ -312,37 +415,7 @@ final class PropResolver
         }
 
         foreach ($this->only as $onlyPath) {
-            if (str_starts_with($onlyPath, $path . '.')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function matchesExcept(string $path): bool
-    {
-        if ($this->except === null) {
-            return false;
-        }
-
-        foreach ($this->except as $exceptPath) {
-            if ($path === $exceptPath || str_starts_with($path, $exceptPath . '.')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function matchesOnly(string $path): bool
-    {
-        if ($this->only === null) {
-            return false;
-        }
-
-        foreach ($this->only as $onlyPath) {
-            if ($path === $onlyPath || str_starts_with($path, $onlyPath . '.')) {
+            if (str_starts_with($onlyPath, "{$path}.")) {
                 return true;
             }
         }
@@ -351,6 +424,52 @@ final class PropResolver
     }
 
     /**
+     * Returns `true` if the path matches or is a descendant of one of the partial `except` paths.
+     *
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if the path is excluded by the partial request's `except` metadata, `false` otherwise.
+     */
+    private function matchesExcept(string $path): bool
+    {
+        if ($this->except === null) {
+            return false;
+        }
+
+        foreach ($this->except as $exceptPath) {
+            if ($path === $exceptPath || str_starts_with($path, "{$exceptPath}.")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns `true` if the path matches or is a descendant of one of the partial `only` paths.
+     *
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if the path is included by the partial request's `only` metadata, `false` otherwise.
+     */
+    private function matchesOnly(string $path): bool
+    {
+        if ($this->only === null) {
+            return false;
+        }
+
+        foreach ($this->only as $onlyPath) {
+            if ($path === $onlyPath || str_starts_with($path, "{$onlyPath}.")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Captures a point-in-time copy of all tracked resolution metadata.
+     *
      * @return array{
      *   deferredProps: array<string, list<string>>,
      *   rescuedProps: list<string>,
@@ -370,7 +489,7 @@ final class PropResolver
      *     }
      *   >,
      *   onceProps: array<string, array{prop: string, expiresAt: int|null}>
-     * }
+     * } Current resolution state, used to roll back metadata on rescued prop failure.
      */
     private function metadataSnapshot(): array
     {
@@ -388,9 +507,11 @@ final class PropResolver
     }
 
     /**
-     * @param array<string, mixed> $flash
+     * Normalizes flash data values through JSON validation, throwing on invalid values.
      *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $flash Flash data indexed by key.
+     *
+     * @return array<string, mixed> Flash data with all values normalized to JSON-safe scalars.
      */
     private function normalizeFlash(array $flash): array
     {
@@ -410,6 +531,13 @@ final class PropResolver
         return $normalized;
     }
 
+    /**
+     * Returns `true` if the path should be traversed or included during a partial request.
+     *
+     * @param string $path Dot-notation path of the prop.
+     *
+     * @return bool `true` if the path is included in the partial request's metadata, `false` otherwise.
+     */
     private function pathMatchesPartialRequest(string $path): bool
     {
         if ($this->only !== null && !$this->matchesOnly($path) && !$this->leadsToOnly($path)) {
@@ -419,6 +547,17 @@ final class PropResolver
         return $this->except === null || !$this->matchesExcept($path);
     }
 
+    /**
+     * Resolves a single prop value at the given path, applying inclusion rules and unwrapping closures.
+     *
+     * @param mixed $raw The raw prop value, which may be a {@see PropValue} wrapper or a plain value.
+     * @param string $path Dot-notation path used for error messages and metadata registration.
+     * @param bool $parentWasResolved Whether the parent array was itself resolved, bypassing partial filters.
+     *
+     * @throws PropResolutionException When a closure throws and the prop is not deferred.
+     *
+     * @return ResolvedProp The resolved prop value and inclusion status.
+     */
     private function resolveProp(mixed $raw, string $path, bool $parentWasResolved): ResolvedProp
     {
         $definition = PropDefinition::from($raw);
@@ -491,9 +630,11 @@ final class PropResolver
     }
 
     /**
-     * @param array<string, mixed> $props
+     * Resolves all top-level props and returns a `string`-keyed result array.
      *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $props Top-level prop map to resolve.
+     *
+     * @return array<string, mixed> Resolved prop map keyed by top-level name, with omitted entries removed.
      */
     private function resolveTopLevel(array $props): array
     {
@@ -511,16 +652,18 @@ final class PropResolver
     }
 
     /**
-     * @param array<array-key, mixed> $props
+     * Recursively resolves a nested prop array, building dot-notation paths for each entry.
      *
-     * @return array<array-key, mixed>
+     * @param array<array-key, mixed> $props Nested prop array to traverse.
+     *
+     * @return array<array-key, mixed> Resolved nested prop array, with omitted entries removed.
      */
     private function resolveTree(array $props, string $prefix, bool $parentWasResolved): array
     {
         $result = [];
 
         foreach ($props as $key => $raw) {
-            $path = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+            $path = $prefix === '' ? (string) $key : "{$prefix}.{$key}";
 
             $resolved = $this->resolveProp($raw, $path, $parentWasResolved);
 
@@ -533,6 +676,8 @@ final class PropResolver
     }
 
     /**
+     * Restores resolution metadata from a snapshot, rolling back any changes made during a rescued prop failure.
+     *
      * @param array{
      *   deferredProps: array<string, list<string>>,
      *   rescuedProps: list<string>,
@@ -552,7 +697,7 @@ final class PropResolver
      *     }
      *   >,
      *   onceProps: array<string, array{prop: string, expiresAt: int|null}>
-     * } $snapshot
+     * } $snapshot Metadata snapshot captured before resolution, restored to roll back failed rescues.
      */
     private function restoreMetadata(array $snapshot): void
     {
@@ -568,9 +713,11 @@ final class PropResolver
     }
 
     /**
-     * @param array<string, mixed> $sharedProps
+     * Returns the deduplicated top-level keys from the shared props array.
      *
-     * @return list<string>
+     * @param array<string, mixed> $sharedProps Shared props whose top-level keys to extract.
+     *
+     * @return list<string> Deduplicated top-level prop keys extracted from the shared props map.
      */
     private function sharedPropKeys(array $sharedProps): array
     {
@@ -584,15 +731,20 @@ final class PropResolver
     }
 
     /**
-     * @param list<string> $items
+     * Returns a deduplicated, re-indexed copy of `$items`.
      *
-     * @return list<string>
+     * @param list<string> $items The list to deduplicate.
+     *
+     * @return list<string> Deduplicated, re-indexed copy of the input list.
      */
     private static function unique(array $items): array
     {
         return array_values(array_unique($items));
     }
 
+    /**
+     * Returns `true` if the once-prop at the given path was reported as already loaded by the client.
+     */
     private function wasAlreadyLoaded(PropDefinition $definition, string $path): bool
     {
         return $definition->once !== null
