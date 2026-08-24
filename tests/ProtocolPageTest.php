@@ -507,24 +507,24 @@ final class ProtocolPageTest extends TestCase
     {
         $result = (new Protocol())
             ->page(
-            self::request(
-                [
-                    'X-Inertia' => 'true',
-                    'X-Inertia-Partial-Component' => 'Dashboard',
-                    'X-Inertia-Partial-Data' => 'profile.name',
-                ],
-            ),
-            new PageInput(
-                'Dashboard',
-                [
-                    'profile' => static fn(): array => [
-                        'name' => 'Ada',
-                        'role' => 'administrator',
+                self::request(
+                    [
+                        'X-Inertia' => 'true',
+                        'X-Inertia-Partial-Component' => 'Dashboard',
+                        'X-Inertia-Partial-Data' => 'profile.name',
                     ],
-                ],
-                'v1',
-            ),
-        );
+                ),
+                new PageInput(
+                    'Dashboard',
+                    [
+                        'profile' => static fn(): array => [
+                            'name' => 'Ada',
+                            'role' => 'administrator',
+                        ],
+                    ],
+                    'v1',
+                ),
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
