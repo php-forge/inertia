@@ -124,3 +124,9 @@ $redirect = $protocol->redirect($context, '/users#profile');
 
 The adapter applies the neutral result status and headers. It remains responsible for session reflashing when the
 application's redirect lifecycle requires it.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- ⚙️ [Configuration and adapter reference](configuration.md)
+- 🧪 [Testing guide](testing.md)

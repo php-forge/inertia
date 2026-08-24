@@ -27,3 +27,9 @@ implement a small adapter that can:
 4. Render the root HTML document for `InitialPageResult`.
 
 Continue with the [configuration and adapter reference](configuration.md).
+
+## Next steps
+
+- ⚙️ [Configuration and adapter reference](configuration.md)
+- 💡 [Usage examples](examples.md)
+- 🧪 [Testing guide](testing.md)
