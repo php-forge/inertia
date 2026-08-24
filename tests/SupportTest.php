@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Inertia\Tests;
 
 use ArrayObject;
-use PHPForge\Inertia\Exception\{InvalidPropException, Message};
+use PHPForge\Inertia\Exception\{InvalidPageInputException, InvalidPropException, Message};
 use PHPForge\Inertia\Support\{DotArray, JsonValue};
 use PHPForge\Inertia\Tests\Fixture\JsonSerializableStub;
 use PHPForge\Inertia\Tests\Provider\SupportProvider;
@@ -57,6 +57,19 @@ final class SupportTest extends TestCase
         );
     }
 
+    public function testThrowInvalidPageInputExceptionForConflictingNestedDotPath(): void
+    {
+        $this->expectException(InvalidPageInputException::class);
+        $this->expectExceptionMessage(
+            Message::PROP_PATH_CONFLICT->getMessage('profile.name.first', 'name'),
+        );
+
+        DotArray::expand([
+            'profile.name' => 'Ada',
+            'profile.name.first' => 'A',
+        ]);
+    }
+
     public function testThrowInvalidPropExceptionForInvalidNestedJsonValue(): void
     {
         $this->expectException(InvalidPropException::class);
@@ -75,6 +88,16 @@ final class SupportTest extends TestCase
         );
 
         JsonValue::normalize("\xB1\x31", 'name');
+    }
+
+    public function testThrowInvalidPropExceptionForNonFiniteNumber(): void
+    {
+        $this->expectException(InvalidPropException::class);
+        $this->expectExceptionMessage(
+            Message::JSON_NON_FINITE_NUMBER->getMessage('ratio'),
+        );
+
+        JsonValue::normalize(INF, 'ratio');
     }
 
     /**

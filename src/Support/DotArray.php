@@ -11,7 +11,6 @@ use function array_pop;
 use function array_reverse;
 use function array_shift;
 use function is_array;
-use function str_contains;
 
 /**
  * Expands dot-notated page keys into nested arrays while detecting conflicting paths.
@@ -32,12 +31,6 @@ final class DotArray
         $result = [];
 
         foreach ($values as $key => $value) {
-            if (!str_contains($key, '.')) {
-                $result[$key] = $value;
-
-                continue;
-            }
-
             $result = self::assign($result, explode('.', $key), $value, $key);
         }
 

@@ -183,11 +183,14 @@ final readonly class Protocol
 
         $parts = parse_url($request->absoluteUrl);
 
+        // A validated RequestContext always provides a parseable HTTP(S) origin.
+        // @codeCoverageIgnoreStart
         if (!is_array($parts) || !isset($parts['scheme'], $parts['host'])) {
             throw new InvalidArgumentException(
                 Message::REQUEST_ORIGIN_INVALID->getMessage(),
             );
         }
+        // @codeCoverageIgnoreEnd
 
         $port = isset($parts['port']) ? ':' . $parts['port'] : '';
 

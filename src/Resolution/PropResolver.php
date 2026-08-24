@@ -394,27 +394,24 @@ final class PropResolver
      */
     private function isIncludedInPartialMetadata(string $path): bool
     {
-        if ($this->only !== null && !$this->matchesOnly($path)) {
+        if ($this->only !== null && !self::matchesPath($path, $this->only)) {
             return false;
         }
 
-        return $this->except === null || !$this->matchesExcept($path);
+        return $this->except === null || !self::matchesPath($path, $this->except);
     }
 
     /**
      * Returns `true` if any `only` path is a descendant of the given path, requiring traversal of its subtree.
      *
      * @param string $path Dot-notation path of the prop.
+     * @param list<string> $only Prop paths requested by the partial request.
      *
      * @return bool `true` if any `only` path is a descendant of the given path, `false` otherwise.
      */
-    private function leadsToOnly(string $path): bool
+    private static function leadsToOnly(string $path, array $only): bool
     {
-        if ($this->only === null) {
-            return false;
-        }
-
-        foreach ($this->only as $onlyPath) {
+        foreach ($only as $onlyPath) {
             if (str_starts_with($onlyPath, "{$path}.")) {
                 return true;
             }
@@ -424,42 +421,17 @@ final class PropResolver
     }
 
     /**
-     * Returns `true` if the path matches or is a descendant of one of the partial `except` paths.
+     * Returns `true` if the path matches or is a descendant of one of the supplied paths.
      *
      * @param string $path Dot-notation path of the prop.
+     * @param list<string> $paths Prop paths to match against.
      *
-     * @return bool `true` if the path is excluded by the partial request's `except` metadata, `false` otherwise.
+     * @return bool `true` if the path matches or descends from a supplied path, `false` otherwise.
      */
-    private function matchesExcept(string $path): bool
+    private static function matchesPath(string $path, array $paths): bool
     {
-        if ($this->except === null) {
-            return false;
-        }
-
-        foreach ($this->except as $exceptPath) {
-            if ($path === $exceptPath || str_starts_with($path, "{$exceptPath}.")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns `true` if the path matches or is a descendant of one of the partial `only` paths.
-     *
-     * @param string $path Dot-notation path of the prop.
-     *
-     * @return bool `true` if the path is included by the partial request's `only` metadata, `false` otherwise.
-     */
-    private function matchesOnly(string $path): bool
-    {
-        if ($this->only === null) {
-            return false;
-        }
-
-        foreach ($this->only as $onlyPath) {
-            if ($path === $onlyPath || str_starts_with($path, "{$onlyPath}.")) {
+        foreach ($paths as $candidate) {
+            if ($path === $candidate || str_starts_with($path, "{$candidate}.")) {
                 return true;
             }
         }
@@ -540,11 +512,15 @@ final class PropResolver
      */
     private function pathMatchesPartialRequest(string $path): bool
     {
-        if ($this->only !== null && !$this->matchesOnly($path) && !$this->leadsToOnly($path)) {
+        if (
+            $this->only !== null
+            && !self::matchesPath($path, $this->only)
+            && !self::leadsToOnly($path, $this->only)
+        ) {
             return false;
         }
 
-        return $this->except === null || !$this->matchesExcept($path);
+        return $this->except === null || !self::matchesPath($path, $this->except);
     }
 
     /**

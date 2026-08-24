@@ -15,8 +15,6 @@ use PHPUnit\Framework\TestCase;
  * Unit tests for {@see Prop} factory values and immutable modifier composition.
  *
  * {@see PropProvider} for test case data providers.
- *
- * @since 0.1.0
  */
 #[Group('prop')]
 final class PropTest extends TestCase
@@ -146,11 +144,45 @@ final class PropTest extends TestCase
             $merge->deepMerge()->prependsAtRoot(),
             'A deep merge must not prepend at the root.',
         );
+
+        $rootAppend = $configured->append();
+
+        self::assertTrue(
+            $rootAppend->appendsAtRoot(),
+            'An empty append path must restore root append behavior.',
+        );
+        self::assertSame(
+            ['data.id', 'items.uuid'],
+            $rootAppend->matchPaths(),
+            'Restoring root append behavior must retain match paths.',
+        );
+    }
+
+    public function testConfiguresDeferredFailureRescueImmutably(): void
+    {
+        $deferred = Prop::defer(static fn(): null => null);
+
+        $rescued = $deferred->rescue();
+        $notRescued = $rescued->rescue(false);
+
+        self::assertFalse(
+            $deferred->rescuesFailures(),
+            'The original deferred prop rescue flag must remain `false`.',
+        );
+        self::assertTrue(
+            $rescued->rescuesFailures(),
+            'The configured deferred prop rescue flag must be `true`.',
+        );
+        self::assertFalse(
+            $notRescued->rescuesFailures(),
+            'The disabled deferred prop rescue flag must be `false`.',
+        );
     }
 
     public function testPreservesZeroOnceExpirationAndScrollResetDefault(): void
     {
         $callback = static fn(): null => null;
+
         $once = (new OnceProp($callback, expiration: 0))->until(0);
         $metadata = new ScrollMetadata('page', null, null, 1);
 
