@@ -132,3 +132,9 @@ The core does not perform any of the following tasks:
 - manage CSRF, middleware ordering, server-side rendering, or asset bundlers.
 
 These responsibilities remain explicit in the adapter so the protocol core stays deterministic and reusable.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- 💡 [Usage examples](examples.md)
+- 🧪 [Testing guide](testing.md)

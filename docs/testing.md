@@ -84,3 +84,10 @@ Run PHPStan with a different memory limit.
 ```bash
 composer static -- --memory-limit=512M
 ```
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- ⚙️ [Configuration and adapter reference](configuration.md)
+- 💡 [Usage examples](examples.md)
+- 📖 [Readme](../README.md)
