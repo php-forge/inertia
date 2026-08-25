@@ -97,11 +97,12 @@ final class ProtocolPageTest extends TestCase
         $result = (new Protocol())
             ->page(
                 self::request(),
-                new PageInput(
+                (new PageInput(
                     'Dashboard',
                     [],
                     'v1',
-                    sharedProps: [
+                ))->withSharedProps(
+                    [
                         'auth.user' => ['id' => 1],
                         'auth.permissions' => ['view'],
                         'settings.theme' => 'dark',
@@ -116,7 +117,7 @@ final class ProtocolPageTest extends TestCase
         );
         self::assertSame(
             ['auth', 'settings'],
-            $result->page()->sharedProps,
+            $result->page()->sharedProps(),
             'Shared metadata must expose unique root keys from dot notation.',
         );
     }
@@ -126,13 +127,13 @@ final class ProtocolPageTest extends TestCase
         $result = (new Protocol())
             ->page(
                 self::request(),
-                new PageInput(
+                (new PageInput(
                     'Dashboard',
                     [],
                     'v1',
-                    sharedProps: ['auth.user' => ['id' => 1]],
-                    exposeSharedProps: false,
-                ),
+                ))
+                    ->withSharedProps(['auth.user' => ['id' => 1]])
+                    ->withSharedPropsExposure(false),
             );
 
         self::assertInstanceOf(
@@ -142,7 +143,7 @@ final class ProtocolPageTest extends TestCase
         );
         self::assertSame(
             [],
-            $result->page()->sharedProps,
+            $result->page()->sharedProps(),
             'Shared prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -162,7 +163,7 @@ final class ProtocolPageTest extends TestCase
                         'X-Inertia-Error-Bag' => 'profile',
                     ],
                 ),
-                new PageInput('Dashboard', [], 'v1', errors: ['email' => ['Invalid', 'Required']]),
+                (new PageInput('Dashboard', [], 'v1'))->withErrors(['email' => ['Invalid', 'Required']]),
             );
 
         self::assertInstanceOf(
@@ -231,7 +232,7 @@ final class ProtocolPageTest extends TestCase
         );
         self::assertSame(
             ['analytics' => ['metrics']],
-            $full->page()->deferredProps,
+            $full->page()->deferredProps(),
             'Deferred prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -268,7 +269,7 @@ final class ProtocolPageTest extends TestCase
         );
         self::assertSame(
             [],
-            $partial->page()->deferredProps,
+            $partial->page()->deferredProps(),
             'Deferred prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -434,20 +435,20 @@ final class ProtocolPageTest extends TestCase
         $result = (new Protocol())
             ->page(
                 self::request(),
-                new PageInput(
-                    component: 'Dashboard',
-                    props: [
+                (new PageInput(
+                    'Dashboard',
+                    [
                         'answer' => static fn(): int => 42,
                         'profile.name' => 'Ada',
                     ],
-                    version: 'v1',
-                    sharedProps: ['auth' => ['id' => 7]],
-                    errors: ['email' => 'Invalid'],
-                    flash: ['message' => 'Saved', 'level' => 'success'],
-                    encryptHistory: true,
-                    clearHistory: true,
-                    preserveFragment: true,
-                ),
+                    'v1',
+                ))
+                    ->withSharedProps(['auth' => ['id' => 7]])
+                    ->withErrors(['email' => 'Invalid'])
+                    ->withFlash(['message' => 'Saved', 'level' => 'success'])
+                    ->withEncryptHistory()
+                    ->withClearHistory()
+                    ->withPreserveFragment(),
             );
 
         self::assertInstanceOf(
@@ -482,24 +483,24 @@ final class ProtocolPageTest extends TestCase
         );
         self::assertSame(
             ['auth'],
-            $result->page()->sharedProps,
+            $result->page()->sharedProps(),
             'Shared prop metadata must match the expected value.',
         );
         self::assertSame(
             ['message' => 'Saved', 'level' => 'success'],
-            $result->page()->flash,
+            $result->page()->flash(),
             'Flash data must match the expected value.',
         );
         self::assertTrue(
-            $result->page()->encryptHistory,
+            $result->page()->encryptHistory(),
             'Encrypt-history flag must be `true`.',
         );
         self::assertTrue(
-            $result->page()->clearHistory,
+            $result->page()->clearHistory(),
             'Clear-history flag must be `true`.',
         );
         self::assertTrue(
-            $result->page()->preserveFragment,
+            $result->page()->preserveFragment(),
             'Preserve-fragment flag must be `true`.',
         );
     }
@@ -682,7 +683,7 @@ final class ProtocolPageTest extends TestCase
             (new Protocol())
                 ->page(
                     self::request(),
-                    new PageInput('Dashboard', [], 'v1', flash: ['resource' => $resource]),
+                    (new PageInput('Dashboard', [], 'v1'))->withFlash(['resource' => $resource]),
                 );
 
             self::fail(

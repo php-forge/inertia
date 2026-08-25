@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-composer require php-forge/inertia:^0.1
+composer require php-forge/inertia:^0.2
 ```
 
 PHP 8.3 or later and the JSON extension are required.
@@ -61,20 +61,20 @@ $request = new RequestContext(
 $result = (new Protocol())
     ->page(
         $request,
-        new PageInput(
-            component: 'Users/Index',
-            props: [
+        (new PageInput(
+            'Users/Index',
+            [
                 'users' => Prop::merge(fn (): array => loadUsers())->append('data', 'id'),
                 'analytics' => Prop::defer(fn (): array => loadAnalytics(), group: 'analytics'),
                 'filters' => Prop::optional(fn (): array => availableFilters()),
             ],
-            version: 'assets-v1',
-            sharedProps: [
+            'assets-v1',
+        ))
+            ->withSharedProps([
                 'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
-            ],
-            errors: validationErrors(),
-            flash: flashedData(),
-        ),
+            ])
+            ->withErrors(validationErrors())
+            ->withFlash(flashedData()),
     );
 ```
 
@@ -113,7 +113,7 @@ See the [configuration reference](docs/configuration.md) for the complete result
 [![Codecov](https://img.shields.io/codecov/c/github/php-forge/inertia.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/gh/php-forge/inertia)
 [![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/php-forge/inertia/actions/workflows/static.yml)
 [![Quality](https://img.shields.io/github/actions/workflow/status/php-forge/inertia/quality.yml?style=for-the-badge&label=Quality&logo=github)](https://github.com/php-forge/inertia/actions/workflows/quality.yml)
-[![Dependency Check](https://img.shields.io/github/actions/workflow/status/php-forge/inertia/dependency-check.yml?style=for-the-badge&label=Dependency%20Check&logo=github)](https://github.com/php-forge/inertia/actions/workflows/dependency-check.yml)
+[![StyleCI](https://img.shields.io/badge/StyleCI-Passed-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/1342862957?branch=main)
 
 ## Social networks
 

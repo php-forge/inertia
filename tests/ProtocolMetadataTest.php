@@ -51,22 +51,22 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['users.data', 'dynamic'],
-            $result->page()->mergeProps,
+            $result->page()->mergeProps(),
             'Merge prop metadata must match the expected value.',
         );
         self::assertSame(
             ['notices', 'alerts.data'],
-            $result->page()->prependProps,
+            $result->page()->prependProps(),
             'Prepend prop metadata must match the expected value.',
         );
         self::assertSame(
             ['settings'],
-            $result->page()->deepMergeProps,
+            $result->page()->deepMergeProps(),
             'Deep-merge prop metadata must match the expected value.',
         );
         self::assertSame(
             ['users.data.id', 'alerts.data.uuid', 'settings.items.id'],
-            $result->page()->matchPropsOn,
+            $result->page()->matchPropsOn(),
             'Match-on prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -104,11 +104,16 @@ final class ProtocolMetadataTest extends TestCase
             ],
             'v1',
         );
-        $append = (new Protocol())->page(self::request(), $input);
-        $prepend = (new Protocol())->page(
-            self::request(['X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend']),
-            $input,
-        );
+        $append = (new Protocol())
+            ->page(
+                self::request(),
+                $input,
+            );
+        $prepend = (new Protocol())
+            ->page(
+                self::request(['X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend']),
+                $input,
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -122,32 +127,32 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['shared' => ['deferredOne', 'deferredTwo']],
-            $append->page()->deferredProps,
+            $append->page()->deferredProps(),
             'Deferred metadata must retain every prop in a shared group.',
         );
         self::assertSame(
             ['scrollOne.data', 'scrollTwo.data', 'nested.first', 'nested.second'],
-            $append->page()->mergeProps,
+            $append->page()->mergeProps(),
             'Append metadata must retain scroll and nested merge paths.',
         );
         self::assertSame(
             ['prependOne', 'prependTwo'],
-            $append->page()->prependProps,
+            $append->page()->prependProps(),
             'Root prepend metadata must retain every configured prop.',
         );
         self::assertSame(
             ['deepOne', 'deepTwo'],
-            $append->page()->deepMergeProps,
+            $append->page()->deepMergeProps(),
             'Deep-merge metadata must retain every configured prop.',
         );
         self::assertSame(
             ['nested.first', 'nested.second'],
-            $prepend->page()->mergeProps,
+            $prepend->page()->mergeProps(),
             'Nested append paths must remain append metadata during a prepend visit.',
         );
         self::assertSame(
             ['scrollOne.data', 'scrollTwo.data', 'prependOne', 'prependTwo'],
-            $prepend->page()->prependProps,
+            $prepend->page()->prependProps(),
             'Prepend metadata must retain scroll and root prepend paths.',
         );
     }
@@ -176,17 +181,17 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['feed' => ['posts']],
-            $result->page()->deferredProps,
+            $result->page()->deferredProps(),
             'Deferred prop metadata must match the expected value.',
         );
         self::assertSame(
             ['posts.data'],
-            $result->page()->mergeProps,
+            $result->page()->mergeProps(),
             'Merge prop metadata must match the expected value.',
         );
         self::assertSame(
             [],
-            $result->page()->scrollProps,
+            $result->page()->scrollProps(),
             'Scroll prop metadata must match the expected value.',
         );
     }
@@ -228,17 +233,17 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['analytics' => ['combined']],
-            $result->page()->deferredProps,
+            $result->page()->deferredProps(),
             'Deferred prop metadata must match the expected value.',
         );
         self::assertSame(
             ['combined'],
-            $result->page()->deepMergeProps,
+            $result->page()->deepMergeProps(),
             'Deep-merge prop metadata must match the expected value.',
         );
         self::assertSame(
             ['report-data' => ['prop' => 'combined', 'expiresAt' => null]],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
     }
@@ -263,7 +268,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['plans' => ['prop' => 'plans', 'expiresAt' => $expiration->getTimestamp() * 1000]],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
     }
@@ -288,7 +293,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['plans' => ['prop' => 'plans', 'expiresAt' => ($now->getTimestamp() + 1800) * 1000]],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
     }
@@ -339,7 +344,7 @@ final class ProtocolMetadataTest extends TestCase
                     'expiresAt' => ($now->getTimestamp() + 3600) * 1000,
                 ],
             ],
-            $initial->page()->onceProps,
+            $initial->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
 
@@ -360,7 +365,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertArrayHasKey(
             'billing-plans',
-            $cached->page()->onceProps,
+            $cached->page()->onceProps(),
             'Once prop metadata must contain the expected key.',
         );
         self::assertSame(
@@ -455,7 +460,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['plans' => ['prop' => 'plans', 'expiresAt' => null]],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -500,12 +505,12 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['selected'],
-            $result->page()->mergeProps,
+            $result->page()->mergeProps(),
             'Partial merge metadata must include only selected, non-excluded props.',
         );
         self::assertSame(
             ['selected' => ['prop' => 'selected', 'expiresAt' => null]],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Partial once metadata must include only selected, non-excluded props.',
         );
         self::assertSame(
@@ -560,17 +565,17 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['metrics', 'summary'],
-            $result->page()->rescuedProps,
+            $result->page()->rescuedProps(),
             'Rescued prop metadata must match the expected value.',
         );
         self::assertSame(
             [],
-            $result->page()->mergeProps,
+            $result->page()->mergeProps(),
             'Merge prop metadata must match the expected value.',
         );
         self::assertSame(
             [],
-            $result->page()->onceProps,
+            $result->page()->onceProps(),
             'Once prop metadata must match the expected value.',
         );
         self::assertCount(
@@ -625,12 +630,12 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['posts.data'],
-            $append->page()->mergeProps,
+            $append->page()->mergeProps(),
             'Merge prop metadata must match the expected value.',
         );
         self::assertSame(
             [],
-            $append->page()->prependProps,
+            $append->page()->prependProps(),
             'Prepend prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -643,7 +648,7 @@ final class ProtocolMetadataTest extends TestCase
                     'reset' => false,
                 ],
             ],
-            $append->page()->scrollProps,
+            $append->page()->scrollProps(),
             'Scroll prop metadata must match the expected value.',
         );
 
@@ -659,7 +664,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             ['posts.data'],
-            $prepend->page()->prependProps,
+            $prepend->page()->prependProps(),
             'Prepend prop metadata must match the expected value.',
         );
 
@@ -675,7 +680,7 @@ final class ProtocolMetadataTest extends TestCase
         );
         self::assertSame(
             [],
-            $reset->page()->mergeProps,
+            $reset->page()->mergeProps(),
             'Merge prop metadata must match the expected value.',
         );
         self::assertSame(
@@ -688,7 +693,7 @@ final class ProtocolMetadataTest extends TestCase
                     'reset' => true,
                 ],
             ],
-            $reset->page()->scrollProps,
+            $reset->page()->scrollProps(),
             'Scroll prop metadata must match the expected value.',
         );
     }

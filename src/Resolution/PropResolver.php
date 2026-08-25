@@ -8,7 +8,7 @@ use Closure;
 use DateInterval;
 use PHPForge\Inertia\Clock\Clock;
 use PHPForge\Inertia\Exception\{InvalidPropException, Message, PropResolutionException};
-use PHPForge\Inertia\{PageInput, RequestContext};
+use PHPForge\Inertia\{PageInput, PageMetadata, RequestContext};
 use PHPForge\Inertia\Prop\{AlwaysProp, MergeProp, OnceProp, ScrollMetadata};
 use PHPForge\Inertia\Result\RescuedPropFailure;
 use PHPForge\Inertia\Support\{DotArray, JsonValue};
@@ -128,11 +128,13 @@ final class PropResolver
      */
     public function resolve(PageInput $input): ResolvedPageData
     {
-        $combined = array_replace($input->sharedProps, $input->props);
+        $sharedProps = $input->sharedProps();
+
+        $combined = array_replace($sharedProps, $input->props);
 
         $props = DotArray::expand($combined);
 
-        $errors = $input->errors;
+        $errors = $input->errors();
 
         $errorBag = $this->request->errorBag();
 
@@ -144,21 +146,24 @@ final class PropResolver
 
         $resolvedProps = $this->resolveTopLevel($props);
 
-        $flash = $this->normalizeFlash($input->flash);
+        $flash = $this->normalizeFlash($input->flash());
 
-        $sharedProps = $input->exposeSharedProps ? $this->sharedPropKeys($input->sharedProps) : [];
+        $sharedPropKeys = $input->exposesSharedProps() ? $this->sharedPropKeys($sharedProps) : [];
+
+        $metadata = (new PageMetadata())
+            ->withMergeProps($this->mergeProps)
+            ->withPrependProps($this->prependProps)
+            ->withDeepMergeProps($this->deepMergeProps)
+            ->withMatchPropsOn($this->matchPropsOn)
+            ->withScrollProps($this->scrollProps)
+            ->withDeferredProps($this->deferredProps)
+            ->withRescuedProps($this->rescuedProps)
+            ->withSharedProps($sharedPropKeys)
+            ->withOnceProps($this->onceProps);
 
         return new ResolvedPageData(
             $resolvedProps,
-            $this->mergeProps,
-            $this->prependProps,
-            $this->deepMergeProps,
-            $this->matchPropsOn,
-            $this->scrollProps,
-            $this->deferredProps,
-            $this->rescuedProps,
-            $sharedProps,
-            $this->onceProps,
+            $metadata,
             $this->rescuedFailures,
             $flash,
         );
@@ -185,15 +190,17 @@ final class PropResolver
      */
     private function collectExcludedMetadata(PropDefinition $definition, string $path): void
     {
+        $deferred = $definition->deferred();
+
         if (
-            $definition->deferred !== null
+            $deferred !== null
             && !$this->wasAlreadyLoaded($definition, $path)
         ) {
-            $this->addDeferredProp($definition->deferred->group(), $path);
+            $this->addDeferredProp($deferred->group(), $path);
         }
 
         $this->collectMergeMetadata($definition, $path);
-        $this->collectOnceMetadata($definition->once, $path);
+        $this->collectOnceMetadata($definition->once(), $path);
     }
 
     /**
@@ -211,12 +218,16 @@ final class PropResolver
             return;
         }
 
-        if ($definition->merge !== null) {
-            $this->collectMergeProp($definition->merge, $path);
+        $merge = $definition->merge();
+
+        if ($merge !== null) {
+            $this->collectMergeProp($merge, $path);
         }
 
-        if ($definition->scroll !== null) {
-            $mergePath = "{$path}." . $definition->scroll->wrapper();
+        $scroll = $definition->scroll();
+
+        if ($scroll !== null) {
+            $mergePath = "{$path}." . $scroll->wrapper();
 
             if ($this->request->infiniteScrollMergeIntent() === 'prepend') {
                 $this->prependProps = self::unique([...$this->prependProps, $mergePath]);
@@ -286,8 +297,10 @@ final class PropResolver
     {
         $this->collectMergeMetadata($definition, $path);
 
-        if ($definition->scroll !== null) {
-            $metadata = $definition->scroll->metadata();
+        $scroll = $definition->scroll();
+
+        if ($scroll !== null) {
+            $metadata = $scroll->metadata();
             $metadata = $metadata instanceof Closure ? $metadata($value) : $metadata;
 
             if (!$metadata instanceof ScrollMetadata) {
@@ -299,7 +312,7 @@ final class PropResolver
             $this->scrollProps[$path] = $metadata->toArray(in_array($path, $this->resetProps, true));
         }
 
-        $this->collectOnceMetadata($definition->once, $path);
+        $this->collectOnceMetadata($definition->once(), $path);
     }
 
     /**
@@ -313,7 +326,7 @@ final class PropResolver
     {
         $definition = PropDefinition::from($value);
 
-        if ($definition->always) {
+        if ($definition->always()) {
             return true;
         }
 
@@ -370,14 +383,14 @@ final class PropResolver
             return false;
         }
 
-        if ($definition->optional || $definition->deferred !== null) {
+        if ($definition->optional() || $definition->deferred() !== null) {
             $this->collectExcludedMetadata($definition, $path);
 
             return true;
         }
 
         if ($this->request->isInertia() && $this->wasAlreadyLoaded($definition, $path)) {
-            $this->collectOnceMetadata($definition->once, $path);
+            $this->collectOnceMetadata($definition->once(), $path);
 
             return true;
         }
@@ -540,7 +553,7 @@ final class PropResolver
 
         if (
             $this->isPartial
-            && !$definition->always
+            && !$definition->always()
             && !$parentWasResolved
             && !$this->pathMatchesPartialRequest($path)
         ) {
@@ -586,7 +599,9 @@ final class PropResolver
 
             return ResolvedProp::include($value);
         } catch (Throwable $failure) {
-            if ($definition->deferred !== null && $definition->deferred->rescuesFailures()) {
+            $deferred = $definition->deferred();
+
+            if ($deferred !== null && $deferred->rescuesFailures()) {
                 $this->restoreMetadata($snapshot);
                 $this->rescuedProps = self::unique([...$this->rescuedProps, $path]);
                 $this->rescuedFailures[] = new RescuedPropFailure($path, $failure);
@@ -723,8 +738,10 @@ final class PropResolver
      */
     private function wasAlreadyLoaded(PropDefinition $definition, string $path): bool
     {
-        return $definition->once !== null
-            && !$definition->once->isFresh()
-            && in_array($definition->once->key() ?? $path, $this->loadedOnceProps, true);
+        $once = $definition->once();
+
+        return $once !== null
+            && !$once->isFresh()
+            && in_array($once->key() ?? $path, $this->loadedOnceProps, true);
     }
 }

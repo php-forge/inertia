@@ -6,7 +6,7 @@ namespace PHPForge\Inertia\Tests\Provider;
 
 use Closure;
 use PHPForge\Inertia\Exception\Message;
-use PHPForge\Inertia\Prop\{MergeProp, OnceProp, Prop, ScrollMetadata};
+use PHPForge\Inertia\Prop\{OnceProp, Prop, ScrollMetadata};
 
 /**
  * Data provider for {@see \PHPForge\Inertia\Tests\PropTest} test cases.
@@ -31,9 +31,9 @@ final class PropProvider
                 },
                 Message::MERGE_PATH_INVALID,
             ],
-            'malformed constructor append path' => [
+            'malformed trailing append path' => [
                 static function (): void {
-                    new MergeProp([], appendPaths: ['']);
+                    Prop::merge([])->append('data.');
                 },
                 Message::MERGE_PATH_INVALID,
             ],

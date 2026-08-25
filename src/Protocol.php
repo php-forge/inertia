@@ -96,25 +96,17 @@ final readonly class Protocol
         }
 
         $resolved = (new PropResolver($request, $input->component, $this->clock))->resolve($input);
-        $page = new Page(
+        $page = (new Page(
             component: $input->component,
             props: $resolved->props,
             url: $request->url,
             version: $input->version,
-            encryptHistory: $input->encryptHistory,
-            clearHistory: $input->clearHistory,
-            preserveFragment: $input->preserveFragment,
-            mergeProps: $resolved->mergeProps,
-            prependProps: $resolved->prependProps,
-            deepMergeProps: $resolved->deepMergeProps,
-            matchPropsOn: $resolved->matchPropsOn,
-            scrollProps: $resolved->scrollProps,
-            deferredProps: $resolved->deferredProps,
-            rescuedProps: $resolved->rescuedProps,
-            sharedProps: $resolved->sharedProps,
-            onceProps: $resolved->onceProps,
-            flash: $resolved->flash,
-        );
+        ))
+            ->withMetadata($resolved->metadata)
+            ->withFlash($resolved->flash)
+            ->withEncryptHistory($input->encryptHistory())
+            ->withClearHistory($input->clearHistory())
+            ->withPreserveFragment($input->preserveFragment());
 
         return $request->isInertia()
             ? new InertiaPageResult($page, $resolved->rescuedFailures)
