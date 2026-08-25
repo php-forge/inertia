@@ -21,7 +21,7 @@ final readonly class OnceProp implements PropValue
      * @param (Closure(): mixed)|PropValue $value The value to resolve once.
      * @param string|null $key The cache key to use for this prop. If `null`, a key will be generated from the value's
      * hash.
-     * @param DateTimeInterface|DateInterval|int|null $expiration The expiration time for this prop. If `null`, the prop
+     * @param DateInterval|DateTimeInterface|int|null $expiration The expiration time for this prop. If `null`, the prop
      * will not expire.
      * @param bool $forceFresh Whether to force a fresh resolution of the value even if the client reports it is cached.
      */
@@ -49,7 +49,7 @@ final readonly class OnceProp implements PropValue
      *
      * @return OnceProp A new OnceProp with the given cache key.
      */
-    public function as(string $key): OnceProp
+    public function as(string $key): self
     {
         return new self(
             $this->value,
@@ -62,7 +62,7 @@ final readonly class OnceProp implements PropValue
     /**
      * Returns the expiration time for this prop.
      *
-     * @return DateTimeInterface|DateInterval|int|null The expiration time for this prop, or `null` if it does not
+     * @return DateInterval|DateTimeInterface|int|null The expiration time for this prop, or `null` if it does not
      * expire.
      */
     public function expiration(): DateTimeInterface|DateInterval|int|null
@@ -77,7 +77,7 @@ final readonly class OnceProp implements PropValue
      *
      * @return OnceProp A new OnceProp with the given freshness setting.
      */
-    public function fresh(bool $enabled = true): OnceProp
+    public function fresh(bool $enabled = true): self
     {
         return new self(
             $this->value,
@@ -110,7 +110,7 @@ final readonly class OnceProp implements PropValue
     /**
      * Returns a new instance with the given expiration time.
      *
-     * @param DateTimeInterface|DateInterval|int $expiration Expiration as a timestamp, offset in seconds, or interval
+     * @param DateInterval|DateTimeInterface|int $expiration Expiration as a timestamp, offset in seconds, or interval
      * relative to the current time.
      */
     public function until(DateTimeInterface|DateInterval|int $expiration): self

@@ -78,7 +78,7 @@ final readonly class Protocol
      * @param RequestContext $request Validated request context from the framework adapter.
      * @param PageInput $input Validated page data, props, and options.
      *
-     * @return InitialPageResult|InertiaPageResult|VersionConflictResult Returns an {@see InitialPageResult} for the
+     * @return InertiaPageResult|InitialPageResult|VersionConflictResult Returns an {@see InitialPageResult} for the
      * initial HTML render, an {@see InertiaPageResult} for Inertia partial or full visits, or a
      * {@see VersionConflictResult} when the client's asset version differs from the page version.
      */

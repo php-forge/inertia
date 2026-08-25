@@ -74,7 +74,7 @@ final readonly class DeferredProp implements PropValue
      *
      * @return DeferredProp A new DeferredProp that rescues callback failures.
      */
-    public function rescue(bool $enabled = true): DeferredProp
+    public function rescue(bool $enabled = true): self
     {
         return new self($this->value, $this->group, $enabled);
     }

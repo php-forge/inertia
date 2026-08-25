@@ -22,7 +22,7 @@ final readonly class ResolvedProp
      *
      * @return ResolvedProp An included resolved prop carrying the given value.
      */
-    public static function include(mixed $value): ResolvedProp
+    public static function include(mixed $value): self
     {
         return new self(
             true,

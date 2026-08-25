@@ -59,7 +59,7 @@ final class PageInput
     /**
      * @param string $component The name of the front-end component to render.
      * @param array<string, mixed> $props Page-specific props, merged over shared props during resolution.
-     * @param string|int $version The current page version, used to detect stale pages on the client.
+     * @param int|string $version The current page version, used to detect stale pages on the client.
      */
     public function __construct(
         public readonly string $component,
@@ -152,7 +152,7 @@ final class PageInput
      *
      * @return PageInput A new input with the clear-history option replaced.
      */
-    public function withClearHistory(bool $enabled = true): PageInput
+    public function withClearHistory(bool $enabled = true): self
     {
         $clone = clone $this;
         $clone->clearHistory = $enabled;
@@ -167,7 +167,7 @@ final class PageInput
      *
      * @return PageInput A new input with the encrypt-history option replaced.
      */
-    public function withEncryptHistory(bool $enabled = true): PageInput
+    public function withEncryptHistory(bool $enabled = true): self
     {
         $clone = clone $this;
         $clone->encryptHistory = $enabled;
@@ -182,7 +182,7 @@ final class PageInput
      *
      * @return PageInput A new input with the validation errors replaced.
      */
-    public function withErrors(array $errors): PageInput
+    public function withErrors(array $errors): self
     {
         self::validateErrors($errors);
 
@@ -199,7 +199,7 @@ final class PageInput
      *
      * @return PageInput A new input with the flash data replaced.
      */
-    public function withFlash(array $flash): PageInput
+    public function withFlash(array $flash): self
     {
         self::validateKeys($flash, 'flash data');
 
@@ -216,7 +216,7 @@ final class PageInput
      *
      * @return PageInput A new input with the preserve-fragment option replaced.
      */
-    public function withPreserveFragment(bool $enabled = true): PageInput
+    public function withPreserveFragment(bool $enabled = true): self
     {
         $clone = clone $this;
         $clone->preserveFragment = $enabled;
@@ -231,7 +231,7 @@ final class PageInput
      *
      * @return PageInput A new input with the shared props replaced.
      */
-    public function withSharedProps(array $sharedProps): PageInput
+    public function withSharedProps(array $sharedProps): self
     {
         self::validateProps($sharedProps, 'shared props');
 
@@ -248,7 +248,7 @@ final class PageInput
      *
      * @return PageInput A new input with the shared-prop exposure option replaced.
      */
-    public function withSharedPropsExposure(bool $enabled = true): PageInput
+    public function withSharedPropsExposure(bool $enabled = true): self
     {
         $clone = clone $this;
         $clone->exposeSharedProps = $enabled;
