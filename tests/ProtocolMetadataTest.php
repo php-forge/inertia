@@ -665,9 +665,9 @@ final class ProtocolMetadataTest extends TestCase
 
         $prepend = Protocol::create()
             ->page(
-            self::request(['X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend']),
-            $input,
-        );
+                self::request(['X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend']),
+                $input,
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
@@ -682,9 +682,9 @@ final class ProtocolMetadataTest extends TestCase
 
         $reset = Protocol::create()
             ->page(
-            self::request(['X-Inertia-Reset' => 'posts']),
-            $input,
-        );
+                self::request(['X-Inertia-Reset' => 'posts']),
+                $input,
+            );
 
         self::assertInstanceOf(
             InertiaPageResult::class,
