@@ -68,7 +68,7 @@ $input = PageInput::create(
     version: 'assets-v1',
 )
 ->withSharedProps(
-	[
+	  [
         'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
     ],
 )
