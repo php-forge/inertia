@@ -45,6 +45,18 @@ final readonly class Protocol
     }
 
     /**
+     * Creates a protocol instance with an optional clock.
+     *
+     * @param Clock|null $clock Clock used for once-prop expiration. Defaults to {@see SystemClock}.
+     *
+     * @return Protocol A new protocol instance.
+     */
+    public static function create(Clock|null $clock = null): self
+    {
+        return new self($clock);
+    }
+
+    /**
      * Returns an Inertia location result for external navigations, or a standard redirect outside Inertia.
      *
      * @param RequestContext $request Validated request context from the framework adapter.

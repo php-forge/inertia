@@ -86,6 +86,20 @@ final class PageInput
     }
 
     /**
+     * Creates a validated page input from its required values.
+     *
+     * @param string $component The name of the front-end component to render.
+     * @param array<string, mixed> $props Page-specific props, merged over shared props during resolution.
+     * @param int|string $version The current page version, used to detect stale pages on the client.
+     *
+     * @return PageInput A new validated page input.
+     */
+    public static function create(string $component, array $props, string|int $version): self
+    {
+        return new self($component, $props, $version);
+    }
+
+    /**
      * Returns whether the page history should be encrypted for this request.
      *
      * @return bool Whether the page history should be encrypted for this request.

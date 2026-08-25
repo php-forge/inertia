@@ -29,8 +29,8 @@ zero-argument closure when a prop needs application context.
 
 ## Page input
 
-`PageInput` requires a component, a page-prop map, and an asset version. Configure optional values through immutable
-modifiers:
+Create a `PageInput` with `PageInput::create()` by providing a component, a page-prop map, and an asset version. Configure
+optional values through immutable modifiers:
 
 - `withSharedProps()` replaces the shared props;
 - `withErrors()` replaces the validation errors;
@@ -39,6 +39,9 @@ modifiers:
 - `withSharedPropsExposure()` controls the top-level `sharedProps` metadata list.
 
 Every modifier returns a new value and leaves the original `PageInput` unchanged.
+
+`PageInput::create()` and `Protocol::create()` are additive construction shortcuts. Their constructors remain public for
+direct construction and dependency-injection containers.
 
 The `errors` key is reserved and must be supplied through `withErrors()`. Empty errors are serialized as an object in the
 page JSON. If `X-Inertia-Error-Bag` is present, non-empty errors are nested under that bag.
@@ -79,7 +82,7 @@ $filters = Prop::optional(fn (): array => loadFilters())->once();
 ```
 
 `until()` accepts seconds, `DateInterval`, or `DateTimeInterface`. Expiration metadata uses Unix milliseconds. Inject a
-custom `Clock` into `Protocol` when deterministic time is required.
+custom `Clock` through `Protocol::create($clock)` or its constructor when deterministic time is required.
 
 ## Low-level public API
 
@@ -94,7 +97,8 @@ corresponding resolution values.
 
 ## Page results
 
-Call `Protocol::page($request, $input)`. The adapter maps the returned value as follows:
+Call `Protocol::create()->page($request, $input)`, or invoke `page()` on a directly constructed `Protocol`. The adapter maps
+the returned value as follows:
 
 | Result                  | Status | Adapter body responsibility                                         |
 | ----------------------- | -----: | ------------------------------------------------------------------- |
