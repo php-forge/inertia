@@ -14,17 +14,16 @@ $context = new RequestContext(
     headers: $adapter->inertiaHeaders(),
 );
 
-$result = (new Protocol())->page(
-    $context,
-    (new PageInput(
-        'Dashboard',
-        ['metrics' => fn (): array => $metrics->summary()],
-        $assets->version(),
-    ))
-        ->withSharedProps(['auth.user' => $currentUser])
-        ->withErrors($adapter->validationErrors())
-        ->withFlash($adapter->pullFlashData()),
-);
+$input = PageInput::create(
+    component: 'Dashboard',
+    props: ['metrics' => fn (): array => $metrics->summary()],
+    version: $assets->version(),
+)
+->withSharedProps(['auth.user' => $currentUser])
+->withErrors($adapter->validationErrors())
+->withFlash($adapter->pullFlashData());
+
+$result = Protocol::create()->page($context, $input);
 ```
 
 The `$adapter` object in this example belongs to the application integration. The core never receives it inside a prop

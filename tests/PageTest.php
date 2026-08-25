@@ -19,9 +19,35 @@ use PHPUnit\Framework\TestCase;
 #[Group('page')]
 final class PageTest extends TestCase
 {
+    public function testCreatesPageInputFromStaticFactory(): void
+    {
+        $input = PageInput::create('Dashboard', ['answer' => 42], 7);
+
+        self::assertSame(
+            'Dashboard',
+            $input->component,
+            'Factory component must match the supplied value.',
+        );
+        self::assertSame(
+            ['answer' => 42],
+            $input->props,
+            'Factory props must match the supplied value.',
+        );
+        self::assertSame(
+            7,
+            $input->version,
+            'Factory version must match the supplied value.',
+        );
+        self::assertSame(
+            [],
+            $input->sharedProps(),
+            'Factory inputs must preserve the shared-prop default.',
+        );
+    }
+
     public function testPageInputModifiersReturnNewValues(): void
     {
-        $input = new PageInput('Dashboard', ['answer' => 42], 'v1');
+        $input = PageInput::create('Dashboard', ['answer' => 42], 'v1');
 
         self::assertNotSame(
             $input,
@@ -443,6 +469,6 @@ final class PageTest extends TestCase
             $message->getMessage(...$arguments),
         );
 
-        (new PageInput($component, $props, 'v1'))->withErrors($errors);
+        PageInput::create($component, $props, 'v1')->withErrors($errors);
     }
 }

@@ -58,24 +58,24 @@ $request = new RequestContext(
     ],
 );
 
-$result = (new Protocol())
-    ->page(
-        $request,
-        (new PageInput(
-            'Users/Index',
-            [
-                'users' => Prop::merge(fn (): array => loadUsers())->append('data', 'id'),
-                'analytics' => Prop::defer(fn (): array => loadAnalytics(), group: 'analytics'),
-                'filters' => Prop::optional(fn (): array => availableFilters()),
-            ],
-            'assets-v1',
-        ))
-            ->withSharedProps([
-                'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
-            ])
-            ->withErrors(validationErrors())
-            ->withFlash(flashedData()),
-    );
+$input = PageInput::create(
+    component: 'Users/Index',
+    props: [
+        'users' => Prop::merge(fn (): array => loadUsers())->append('data', 'id'),
+        'analytics' => Prop::defer(fn (): array => loadAnalytics(), group: 'analytics'),
+        'filters' => Prop::optional(fn (): array => availableFilters()),
+    ],
+    version: 'assets-v1',
+)
+->withSharedProps(
+    [
+        'auth' => Prop::once(fn (): array => currentUser())->as('authenticated-user'),
+    ],
+)
+->withErrors(validationErrors())
+->withFlash(flashedData());
+
+$result = Protocol::create()->page($request, $input);
 ```
 
 `Protocol` does not return a framework response. An adapter inspects the result, applies `statusCode()` and `headers()`,
@@ -96,11 +96,11 @@ See the [configuration reference](docs/configuration.md) for the complete result
 
 ## Documentation
 
-- [Installation guide](docs/installation.md)
-- [Configuration and adapter reference](docs/configuration.md)
-- [Usage examples](docs/examples.md)
-- [Testing guide](docs/testing.md)
-- [Inertia.js protocol documentation](https://inertiajs.com/docs/v3/core-concepts/the-protocol)
+- 📚 [Installation guide](docs/installation.md)
+- ⚙️ [Configuration and adapter reference](docs/configuration.md)
+- 💡 [Usage examples](docs/examples.md)
+- 🧪 [Testing guide](docs/testing.md)
+- 📖 [Inertia.js protocol documentation](https://inertiajs.com/docs/v3/core-concepts/the-protocol)
 
 ## Package information
 

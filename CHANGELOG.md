@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - docs: add `Next steps` section with links to installation, usage, configuration, and testing guides.
 - feat!: replace long `PageInput`, `Page`, `MergeProp`, and resolution constructors with immutable modifiers, typed getters, and `PageMetadata`.
+- feat: add `PageInput::create()` and `Protocol::create()` construction shortcuts while retaining public constructors.
 
 ## 0.1.0 August 24, 2026
 
