@@ -15,9 +15,9 @@ final readonly class ScrollMetadata
 {
     /**
      * @param string $pageName The name of the page for this scroll prop.
-     * @param string|int|null $previousPage The previous page cursor, or `null` if there is no previous page.
-     * @param string|int|null $nextPage The next page cursor, or `null` if there is no next page.
-     * @param string|int|null $currentPage The current page cursor, or `null` if there is no current page.
+     * @param int|string|null $previousPage The previous page cursor, or `null` if there is no previous page.
+     * @param int|string|null $nextPage The next page cursor, or `null` if there is no next page.
+     * @param int|string|null $currentPage The current page cursor, or `null` if there is no current page.
      *
      * @throws InvalidPropException When `$pageName` is empty or contains control characters.
      */

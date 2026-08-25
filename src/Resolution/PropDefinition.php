@@ -40,7 +40,7 @@ final readonly class PropDefinition
      *
      * @return PropDefinition Flattened definition of the prop value and its semantics.
      */
-    public static function from(mixed $value): PropDefinition
+    public static function from(mixed $value): self
     {
         $always = false;
         $deferred = null;
@@ -90,7 +90,7 @@ final readonly class PropDefinition
      *
      * @return PropDefinition New definition that merges the semantics of both definitions.
      */
-    public function mergeWith(self $other): PropDefinition
+    public function mergeWith(self $other): self
     {
         return new self(
             $other->base,

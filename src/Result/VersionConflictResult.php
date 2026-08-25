@@ -11,7 +11,7 @@ final readonly class VersionConflictResult implements ProtocolResult
 {
     /**
      * @param string $url Absolute URL the client should reload.
-     * @param string|int $version Current asset version reported in the `X-Inertia-Version` header.
+     * @param int|string $version Current asset version reported in the `X-Inertia-Version` header.
      */
     public function __construct(public string $url, public string|int $version) {}
 
