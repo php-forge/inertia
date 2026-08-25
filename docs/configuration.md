@@ -29,16 +29,19 @@ zero-argument closure when a prop needs application context.
 
 ## Page input
 
-`PageInput` requires a component, a page-prop map, and an asset version. It also accepts:
+`PageInput` requires a component, a page-prop map, and an asset version. Configure optional values through immutable
+modifiers:
 
-- shared props;
-- validation errors;
-- flash data;
-- `encryptHistory`, `clearHistory`, and `preserveFragment` flags;
-- `exposeSharedProps`, which controls the top-level `sharedProps` metadata list.
+- `withSharedProps()` replaces the shared props;
+- `withErrors()` replaces the validation errors;
+- `withFlash()` replaces the flash data;
+- `withEncryptHistory()`, `withClearHistory()`, and `withPreserveFragment()` configure page behavior;
+- `withSharedPropsExposure()` controls the top-level `sharedProps` metadata list.
 
-The `errors` key is reserved and must be supplied through the dedicated `errors` argument. Empty errors are serialized as
-an object in the page JSON. If `X-Inertia-Error-Bag` is present, non-empty errors are nested under that bag.
+Every modifier returns a new value and leaves the original `PageInput` unchanged.
+
+The `errors` key is reserved and must be supplied through `withErrors()`. Empty errors are serialized as an object in the
+page JSON. If `X-Inertia-Error-Bag` is present, non-empty errors are nested under that bag.
 
 Shared props are merged before page props, so a page prop with the same top-level key wins. Top-level dot-notation keys are
 expanded before resolution.
@@ -81,8 +84,9 @@ custom `Clock` into `Protocol` when deterministic time is required.
 ## Low-level public API
 
 Every package class is a public contract. Advanced integrations may use `PHPForge\Inertia\Resolution\PropResolver`
-directly when they need resolved page data without protocol result negotiation. `PropDefinition`, `ResolvedPageData`, and
-`ResolvedProp` in the same namespace expose the corresponding resolution values.
+directly when they need resolved page data without protocol result negotiation. `PageMetadata` exposes immutable page
+metadata, while `PropDefinition`, `ResolvedPageData`, and `ResolvedProp` in the `Resolution` namespace expose the
+corresponding resolution values.
 
 `PHPForge\Inertia\Support\DotArray` provides the package's strict dot-notation expansion, while
 `PHPForge\Inertia\Support\JsonValue` validates and normalizes prop values. These classes are public contracts; the

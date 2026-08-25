@@ -21,43 +21,29 @@ final class PageProvider
         return [
             'invalid shared prop key' => [
                 static function (): void {
-                    new PageInput(
-                        'Dashboard',
-                        [],
-                        'v1',
-                        sharedProps: ['shared..value' => true],
-                    );
+                    (new PageInput('Dashboard', [], 'v1'))->withSharedProps(['shared..value' => true]);
                 },
                 Message::PAGE_KEY_INVALID,
                 ['shared props'],
             ],
             'invalid flash key' => [
                 static function (): void {
-                    new PageInput(
-                        'Dashboard',
-                        [],
-                        'v1',
-                        flash: ['message,level' => 'success'],
-                    );
+                    (new PageInput('Dashboard', [], 'v1'))->withFlash(['message,level' => 'success']);
                 },
                 Message::PAGE_KEY_INVALID,
                 ['flash data'],
             ],
             'invalid error field' => [
                 static function (): void {
-                    new PageInput('Dashboard', [], 'v1', errors: ['' => 'Invalid']);
+                    (new PageInput('Dashboard', [], 'v1'))->withErrors(['' => 'Invalid']);
                 },
                 Message::PAGE_KEY_INVALID,
                 ['error fields'],
             ],
             'invalid error after string error' => [
                 static function (): void {
-                    new PageInput(
-                        'Dashboard',
-                        [],
-                        'v1',
-                        errors: ['name' => 'Invalid', 'email' => ['first' => 'Invalid']],
-                    );
+                    (new PageInput('Dashboard', [], 'v1'))
+                        ->withErrors(['name' => 'Invalid', 'email' => ['first' => 'Invalid']]);
                 },
                 Message::ERROR_FIELD_INVALID,
                 [],

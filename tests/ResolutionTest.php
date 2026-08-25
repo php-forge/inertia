@@ -5,7 +5,16 @@ declare(strict_types=1);
 namespace PHPForge\Inertia\Tests;
 
 use PHPForge\Inertia\Exception\{InvalidPropException, Message};
-use PHPForge\Inertia\Prop\{AlwaysProp, DeferredProp, MergeProp, OnceProp, PropValue, ScrollMetadata, ScrollProp};
+use PHPForge\Inertia\Prop\{
+    AlwaysProp,
+    DeferredProp,
+    MergeProp,
+    OnceProp,
+    OptionalProp,
+    PropValue,
+    ScrollMetadata,
+    ScrollProp,
+};
 use PHPForge\Inertia\Resolution\PropDefinition;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -23,11 +32,11 @@ final class ResolutionTest extends TestCase
         $alsoAlways = PropDefinition::from(new AlwaysProp('inner'));
 
         self::assertTrue(
-            $always->mergeWith($plain)->always,
+            $always->mergeWith($plain)->always(),
             'An outer always flag must survive definition merging.',
         );
         self::assertTrue(
-            $always->mergeWith($alsoAlways)->always,
+            $always->mergeWith($alsoAlways)->always(),
             'Two always flags must remain enabled after definition merging.',
         );
     }
@@ -46,23 +55,86 @@ final class ResolutionTest extends TestCase
 
         self::assertSame(
             $innerDeferred,
-            PropDefinition::from($outerDeferred)->mergeWith(PropDefinition::from($innerDeferred))->deferred,
+            PropDefinition::from($outerDeferred)->mergeWith(PropDefinition::from($innerDeferred))->deferred(),
             'An inner deferred modifier must replace the outer modifier.',
         );
         self::assertSame(
             $innerMerge,
-            PropDefinition::from($outerMerge)->mergeWith(PropDefinition::from($innerMerge))->merge,
+            PropDefinition::from($outerMerge)->mergeWith(PropDefinition::from($innerMerge))->merge(),
             'An inner merge modifier must replace the outer modifier.',
         );
         self::assertSame(
             $innerOnce,
-            PropDefinition::from($outerOnce)->mergeWith(PropDefinition::from($innerOnce))->once,
+            PropDefinition::from($outerOnce)->mergeWith(PropDefinition::from($innerOnce))->once(),
             'An inner once modifier must replace the outer modifier.',
         );
         self::assertSame(
             $innerScroll,
-            PropDefinition::from($outerScroll)->mergeWith(PropDefinition::from($innerScroll))->scroll,
+            PropDefinition::from($outerScroll)->mergeWith(PropDefinition::from($innerScroll))->scroll(),
             'An inner scroll modifier must replace the outer modifier.',
+        );
+    }
+
+    public function testMergeReturnsCopyWithoutModifyingEitherDefinition(): void
+    {
+        $deferred = new DeferredProp(static fn(): string => 'outer', 'outer');
+        $outer = PropDefinition::from(new AlwaysProp($deferred));
+        $inner = PropDefinition::from(new OptionalProp(static fn(): string => 'inner'));
+
+        $merged = $outer->mergeWith($inner);
+
+        self::assertNotSame(
+            $outer,
+            $merged,
+            'Merged definition must not reuse the outer definition.',
+        );
+        self::assertNotSame(
+            $inner,
+            $merged,
+            'Merged definition must not reuse the inner definition.',
+        );
+        self::assertTrue(
+            $merged->always(),
+            'Merged definition must retain the outer always flag.',
+        );
+        self::assertTrue(
+            $merged->optional(),
+            'Merged definition must retain the inner optional flag.',
+        );
+        self::assertSame(
+            $deferred,
+            $merged->deferred(),
+            'Merged definition must retain the outer deferred modifier.',
+        );
+        self::assertSame(
+            $inner->base,
+            $merged->base,
+            'Merged definition must use the inner base value.',
+        );
+        self::assertTrue(
+            $outer->always(),
+            'Outer definition must retain its always flag.',
+        );
+        self::assertFalse(
+            $outer->optional(),
+            'Outer definition must not gain the inner optional flag.',
+        );
+        self::assertSame(
+            $deferred,
+            $outer->deferred(),
+            'Outer definition must retain its deferred modifier.',
+        );
+        self::assertFalse(
+            $inner->always(),
+            'Inner definition must not gain the outer always flag.',
+        );
+        self::assertTrue(
+            $inner->optional(),
+            'Inner definition must retain its optional flag.',
+        );
+        self::assertNull(
+            $inner->deferred(),
+            'Inner definition must not gain the outer deferred modifier.',
         );
     }
 
@@ -71,11 +143,11 @@ final class ResolutionTest extends TestCase
         $definition = PropDefinition::from('value');
 
         self::assertFalse(
-            $definition->always,
+            $definition->always(),
             'A plain value must not be marked as always included.',
         );
         self::assertFalse(
-            $definition->optional,
+            $definition->optional(),
             'A plain value must not be marked as optional.',
         );
     }

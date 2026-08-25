@@ -16,14 +16,14 @@ $context = new RequestContext(
 
 $result = (new Protocol())->page(
     $context,
-    new PageInput(
-        component: 'Dashboard',
-        props: ['metrics' => fn (): array => $metrics->summary()],
-        version: $assets->version(),
-        sharedProps: ['auth.user' => $currentUser],
-        errors: $adapter->validationErrors(),
-        flash: $adapter->pullFlashData(),
-    ),
+    (new PageInput(
+        'Dashboard',
+        ['metrics' => fn (): array => $metrics->summary()],
+        $assets->version(),
+    ))
+        ->withSharedProps(['auth.user' => $currentUser])
+        ->withErrors($adapter->validationErrors())
+        ->withFlash($adapter->pullFlashData()),
 );
 ```
 

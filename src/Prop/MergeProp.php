@@ -7,40 +7,43 @@ namespace PHPForge\Inertia\Prop;
 use PHPForge\Inertia\Exception\{InvalidPropException, Message};
 
 use function array_values;
+use function in_array;
 use function is_string;
 
 /**
  * Wraps a value that merges with existing client-side data during partial reloads instead of replacing it.
  */
-final readonly class MergeProp implements PropValue
+final class MergeProp implements PropValue
 {
     /**
-     * @param mixed $value The value to merge.
-     * @param bool $deep Whether to perform a deep merge.
-     * @param bool $appendAtRoot Whether to append at the root level (true) or prepend at the root level (false) when no
-     * paths are specified.
-     * @param list<string> $appendPaths The paths to append to.
-     * @param list<string> $prependPaths The paths to prepend to.
-     * @param list<string> $matchOn The paths to match on for deduplication.
+     * Whether to append at the root level when no paths are specified.
      */
-    public function __construct(
-        private mixed $value,
-        private bool $deep = false,
-        private bool $appendAtRoot = true,
-        private array $appendPaths = [],
-        private array $prependPaths = [],
-        private array $matchOn = [],
-    ) {
-        $paths = [
-            ...$appendPaths,
-            ...$prependPaths,
-            ...$matchOn,
-        ];
+    private bool $appendAtRoot = true;
 
-        foreach ($paths as $path) {
-            self::validatePath($path);
-        }
-    }
+    /**
+     * @var list<string> The paths to append to.
+     */
+    private array $appendPaths = [];
+
+    /**
+     * Whether to perform a deep merge.
+     */
+    private bool $deep = false;
+
+    /**
+     * @var list<string> The paths to match on for deduplication.
+     */
+    private array $matchOn = [];
+
+    /**
+     * @var list<string> The paths to prepend to.
+     */
+    private array $prependPaths = [];
+
+    /**
+     * @param mixed $value The value to merge.
+     */
+    public function __construct(private readonly mixed $value) {}
 
     /**
      * Returns a new instance with an append operation at the given path.
@@ -53,30 +56,28 @@ final readonly class MergeProp implements PropValue
     public function append(string $path = '', string|null $matchOn = null): MergeProp
     {
         if ($path === '') {
-            return new self(
-                $this->value,
-                false,
-                true,
-                [],
-                [],
-                $this->matchOn,
-            );
+            $clone = clone $this;
+            $clone->deep = false;
+            $clone->appendAtRoot = true;
+            $clone->appendPaths = [];
+            $clone->prependPaths = [];
+
+            return $clone;
         }
 
-        $matches = $this->matchOn;
+        self::validatePath($path);
 
-        if ($matchOn !== null) {
-            $matches[] = "{$path}.{$matchOn}";
+        $matchPath = self::nestedMatchPath($path, $matchOn);
+
+        $clone = clone $this;
+        $clone->deep = false;
+        $clone->appendPaths = self::unique([...$clone->appendPaths, $path]);
+
+        if ($matchPath !== null) {
+            $clone->matchOn = self::unique([...$clone->matchOn, $matchPath]);
         }
 
-        return new self(
-            $this->value,
-            false,
-            $this->appendAtRoot,
-            self::unique([...$this->appendPaths, $path]),
-            $this->prependPaths,
-            self::unique($matches),
-        );
+        return $clone;
     }
 
     /**
@@ -106,14 +107,12 @@ final readonly class MergeProp implements PropValue
      */
     public function deepMerge(): MergeProp
     {
-        return new self(
-            $this->value,
-            true,
-            $this->appendAtRoot,
-            [],
-            [],
-            $this->matchOn,
-        );
+        $clone = clone $this;
+        $clone->deep = true;
+        $clone->appendPaths = [];
+        $clone->prependPaths = [];
+
+        return $clone;
     }
 
     /**
@@ -143,17 +142,16 @@ final readonly class MergeProp implements PropValue
                     Message::MERGE_MATCH_PATH_INVALID->getMessage(),
                 );
             }
-
         }
 
-        return new self(
-            $this->value,
-            $this->deep,
-            $this->appendAtRoot,
-            $this->appendPaths,
-            $this->prependPaths,
-            self::unique([...$this->matchOn, ...$paths]),
-        );
+        foreach ($paths as $path) {
+            self::validatePath($path);
+        }
+
+        $clone = clone $this;
+        $clone->matchOn = self::unique([...$clone->matchOn, ...$paths]);
+
+        return $clone;
     }
 
     /**
@@ -187,30 +185,28 @@ final readonly class MergeProp implements PropValue
     public function prepend(string $path = '', string|null $matchOn = null): MergeProp
     {
         if ($path === '') {
-            return new self(
-                $this->value,
-                false,
-                false,
-                [],
-                [],
-                $this->matchOn,
-            );
+            $clone = clone $this;
+            $clone->deep = false;
+            $clone->appendAtRoot = false;
+            $clone->appendPaths = [];
+            $clone->prependPaths = [];
+
+            return $clone;
         }
 
-        $matches = $this->matchOn;
+        self::validatePath($path);
 
-        if ($matchOn !== null) {
-            $matches[] = "{$path}.{$matchOn}";
+        $matchPath = self::nestedMatchPath($path, $matchOn);
+
+        $clone = clone $this;
+        $clone->deep = false;
+        $clone->prependPaths = self::unique([...$clone->prependPaths, $path]);
+
+        if ($matchPath !== null) {
+            $clone->matchOn = self::unique([...$clone->matchOn, $matchPath]);
         }
 
-        return new self(
-            $this->value,
-            false,
-            $this->appendAtRoot,
-            $this->appendPaths,
-            self::unique([...$this->prependPaths, $path]),
-            self::unique($matches),
-        );
+        return $clone;
     }
 
     /**
@@ -241,6 +237,27 @@ final readonly class MergeProp implements PropValue
     public function value(): mixed
     {
         return $this->value;
+    }
+
+    /**
+     * Builds and validates a nested match path when a match key is supplied.
+     *
+     * @param string $path The parent path of the match key.
+     * @param string|null $matchOn Optional match key for deduplication.
+     *
+     * @return string|null The validated nested match path, or `null` when no match key is supplied.
+     */
+    private static function nestedMatchPath(string $path, string|null $matchOn): string|null
+    {
+        if ($matchOn === null) {
+            return null;
+        }
+
+        $matchPath = "{$path}.{$matchOn}";
+
+        self::validatePath($matchPath);
+
+        return $matchPath;
     }
 
     /**

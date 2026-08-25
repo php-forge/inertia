@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.1 Under development
+## 0.2.0 Under development
 
 - docs: add `Next steps` section with links to installation, usage, configuration, and testing guides.
+- feat!: replace long `PageInput`, `Page`, `MergeProp`, and resolution constructors with immutable modifiers, typed getters, and `PageMetadata`.
 
 ## 0.1.0 August 24, 2026
 

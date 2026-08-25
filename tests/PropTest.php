@@ -75,20 +75,90 @@ final class PropTest extends TestCase
     {
         $merge = Prop::merge(['data' => []]);
 
-        $configured = $merge->append('data', 'id')->prepend('notices')->matchOn('items.uuid');
+        $appended = $merge->append('data', 'id');
+        $prepended = $appended->prepend('notices');
+        $configured = $prepended->matchOn('items.uuid');
+        $deep = $configured->deepMerge();
+
+        self::assertNotSame(
+            $merge,
+            $appended,
+            'Append must return a new merge prop.',
+        );
+        self::assertNotSame(
+            $appended,
+            $prepended,
+            'Prepend must return a new merge prop.',
+        );
+        self::assertNotSame(
+            $prepended,
+            $configured,
+            'Match configuration must return a new merge prop.',
+        );
+        self::assertNotSame(
+            $configured,
+            $deep,
+            'Deep merge must return a new merge prop.',
+        );
 
         self::assertTrue(
             $merge->appendsAtRoot(),
-            'Root append flag must be `true`.',
+            'The original merge prop must continue appending at the root.',
         );
         self::assertFalse(
             $merge->prependsAtRoot(),
-            'A root append must not also prepend at the root.',
+            'The original merge prop must not prepend at the root.',
+        );
+        self::assertFalse(
+            $merge->isDeep(),
+            'The original merge prop must not become a deep merge.',
         );
         self::assertSame(
             [],
             $merge->appendPaths(),
+            'The original merge prop must retain empty append paths.',
+        );
+        self::assertSame(
+            [],
+            $merge->prependPaths(),
+            'The original merge prop must retain empty prepend paths.',
+        );
+        self::assertSame(
+            [],
+            $merge->matchPaths(),
+            'The original merge prop must retain empty match paths.',
+        );
+
+        self::assertSame(
+            ['data'],
+            $appended->appendPaths(),
             'Append paths must match the expected value.',
+        );
+        self::assertSame(
+            [],
+            $appended->prependPaths(),
+            'A later prepend must not modify the appended merge prop.',
+        );
+        self::assertSame(
+            ['data.id'],
+            $appended->matchPaths(),
+            'A later match operation must not modify the appended merge prop.',
+        );
+
+        self::assertSame(
+            ['data'],
+            $prepended->appendPaths(),
+            'The prepended merge prop must retain append paths.',
+        );
+        self::assertSame(
+            ['notices'],
+            $prepended->prependPaths(),
+            'Prepend paths must match the expected value.',
+        );
+        self::assertSame(
+            ['data.id'],
+            $prepended->matchPaths(),
+            'A later match operation must not modify the prepended merge prop.',
         );
         self::assertSame(
             ['data'],
@@ -110,8 +180,23 @@ final class PropTest extends TestCase
             'Root append flag must be `false`.',
         );
         self::assertTrue(
-            $configured->deepMerge()->isDeep(),
+            $deep->isDeep(),
             'Deep merge flag must be `true`.',
+        );
+        self::assertSame(
+            [],
+            $deep->appendPaths(),
+            'Deep merge must clear append paths.',
+        );
+        self::assertSame(
+            [],
+            $deep->prependPaths(),
+            'Deep merge must clear prepend paths.',
+        );
+        self::assertSame(
+            ['data.id', 'items.uuid'],
+            $deep->matchPaths(),
+            'Deep merge must retain match paths.',
         );
 
         $accumulated = $merge
@@ -147,6 +232,11 @@ final class PropTest extends TestCase
 
         $rootAppend = $configured->append();
 
+        self::assertNotSame(
+            $configured,
+            $rootAppend,
+            'Root append must return a new merge prop.',
+        );
         self::assertTrue(
             $rootAppend->appendsAtRoot(),
             'An empty append path must restore root append behavior.',
@@ -155,6 +245,46 @@ final class PropTest extends TestCase
             ['data.id', 'items.uuid'],
             $rootAppend->matchPaths(),
             'Restoring root append behavior must retain match paths.',
+        );
+
+        $rootPrepend = $configured->prepend();
+
+        self::assertNotSame(
+            $configured,
+            $rootPrepend,
+            'Root prepend must return a new merge prop.',
+        );
+        self::assertTrue(
+            $rootPrepend->prependsAtRoot(),
+            'An empty prepend path must restore root prepend behavior.',
+        );
+        self::assertSame(
+            ['data.id', 'items.uuid'],
+            $rootPrepend->matchPaths(),
+            'Restoring root prepend behavior must retain match paths.',
+        );
+
+        $matched = $merge->matchOn('items.uuid');
+
+        self::assertSame(
+            ['items.uuid', 'users.id'],
+            $matched->append('users', 'id')->matchPaths(),
+            'Append must retain existing match paths.',
+        );
+        self::assertSame(
+            ['items.uuid', 'notices.id'],
+            $matched->prepend('notices', 'id')->matchPaths(),
+            'Prepend must retain existing match paths.',
+        );
+        self::assertSame(
+            ['data'],
+            $configured->appendPaths(),
+            'Root operations must not modify the configured merge prop append paths.',
+        );
+        self::assertSame(
+            ['notices'],
+            $configured->prependPaths(),
+            'Root operations must not modify the configured merge prop prepend paths.',
         );
     }
 
