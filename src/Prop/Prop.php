@@ -79,7 +79,7 @@ final class Prop
     /**
      * Returns a new {@see ScrollProp} wrapping the value with the given scroll metadata.
      *
-     * @param ScrollMetadata|(Closure(mixed): mixed) $metadata Static metadata or a closure receiving the resolved
+     * @param (Closure(mixed): mixed)|ScrollMetadata $metadata Static metadata or a closure receiving the resolved
      * value.
      *
      * @return ScrollProp A new {@see ScrollProp} wrapping the value with the given scroll metadata.

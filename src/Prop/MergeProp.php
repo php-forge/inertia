@@ -53,7 +53,7 @@ final class MergeProp implements PropValue
      *
      * @return MergeProp A new MergeProp with an append operation at the given path.
      */
-    public function append(string $path = '', string|null $matchOn = null): MergeProp
+    public function append(string $path = '', string|null $matchOn = null): self
     {
         if ($path === '') {
             $clone = clone $this;
@@ -105,7 +105,7 @@ final class MergeProp implements PropValue
      *
      * @return MergeProp A new MergeProp with deep merge enabled.
      */
-    public function deepMerge(): MergeProp
+    public function deepMerge(): self
     {
         $clone = clone $this;
         $clone->deep = true;
@@ -128,11 +128,11 @@ final class MergeProp implements PropValue
     /**
      * Returns a new instance with match paths for deduplication.
      *
-     * @param string|array<array-key, mixed> $paths Match keys to add.
+     * @param array<array-key, mixed>|string $paths Match keys to add.
      *
      * @return MergeProp A new MergeProp with match paths for deduplication.
      */
-    public function matchOn(string|array $paths): MergeProp
+    public function matchOn(string|array $paths): self
     {
         $paths = is_string($paths) ? [$paths] : array_values($paths);
 
@@ -182,7 +182,7 @@ final class MergeProp implements PropValue
      *
      * @return MergeProp A new MergeProp with a prepend operation at the given path.
      */
-    public function prepend(string $path = '', string|null $matchOn = null): MergeProp
+    public function prepend(string $path = '', string|null $matchOn = null): self
     {
         if ($path === '') {
             $clone = clone $this;

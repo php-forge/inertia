@@ -218,7 +218,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied deep-merge prop paths.
      */
-    public function withDeepMergeProps(array $deepMergeProps): PageMetadata
+    public function withDeepMergeProps(array $deepMergeProps): self
     {
         $clone = clone $this;
         $clone->deepMergeProps = $deepMergeProps;
@@ -233,7 +233,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied deferred prop groups.
      */
-    public function withDeferredProps(array $deferredProps): PageMetadata
+    public function withDeferredProps(array $deferredProps): self
     {
         $clone = clone $this;
         $clone->deferredProps = $deferredProps;
@@ -248,7 +248,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied match-key prop paths.
      */
-    public function withMatchPropsOn(array $matchPropsOn): PageMetadata
+    public function withMatchPropsOn(array $matchPropsOn): self
     {
         $clone = clone $this;
         $clone->matchPropsOn = $matchPropsOn;
@@ -263,7 +263,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied merge prop paths.
      */
-    public function withMergeProps(array $mergeProps): PageMetadata
+    public function withMergeProps(array $mergeProps): self
     {
         $clone = clone $this;
         $clone->mergeProps = $mergeProps;
@@ -279,7 +279,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied once-prop cache metadata.
      */
-    public function withOnceProps(array $onceProps): PageMetadata
+    public function withOnceProps(array $onceProps): self
     {
         $clone = clone $this;
         $clone->onceProps = $onceProps;
@@ -294,7 +294,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied prepend prop paths.
      */
-    public function withPrependProps(array $prependProps): PageMetadata
+    public function withPrependProps(array $prependProps): self
     {
         $clone = clone $this;
         $clone->prependProps = $prependProps;
@@ -309,7 +309,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied rescued prop paths.
      */
-    public function withRescuedProps(array $rescuedProps): PageMetadata
+    public function withRescuedProps(array $rescuedProps): self
     {
         $clone = clone $this;
         $clone->rescuedProps = $rescuedProps;
@@ -333,7 +333,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied infinite-scroll pagination metadata.
      */
-    public function withScrollProps(array $scrollProps): PageMetadata
+    public function withScrollProps(array $scrollProps): self
     {
         $clone = clone $this;
         $clone->scrollProps = $scrollProps;
@@ -348,7 +348,7 @@ final class PageMetadata
      *
      * @return PageMetadata A new instance containing the supplied shared prop keys.
      */
-    public function withSharedProps(array $sharedProps): PageMetadata
+    public function withSharedProps(array $sharedProps): self
     {
         $clone = clone $this;
         $clone->sharedProps = $sharedProps;

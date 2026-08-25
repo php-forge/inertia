@@ -18,7 +18,7 @@ final readonly class ScrollProp implements PropValue
 {
     /**
      * @param mixed $value The paginated data value.
-     * @param ScrollMetadata|(Closure(mixed): mixed) $metadata Static metadata or a closure receiving the resolved value.
+     * @param (Closure(mixed): mixed)|ScrollMetadata $metadata Static metadata or a closure receiving the resolved value.
      * @param string $wrapper The client-side key under which the paginated data is nested.
      */
     public function __construct(
@@ -52,7 +52,7 @@ final readonly class ScrollProp implements PropValue
     /**
      * Returns the scroll metadata or a closure that produces it from the resolved value.
      *
-     * @return ScrollMetadata|(Closure(mixed): mixed) Static metadata, or a closure deriving it from the value.
+     * @return (Closure(mixed): mixed)|ScrollMetadata Static metadata, or a closure deriving it from the value.
      */
     public function metadata(): ScrollMetadata|Closure
     {

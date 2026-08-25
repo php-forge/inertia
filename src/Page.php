@@ -43,7 +43,7 @@ final class Page implements JsonSerializable
      * @param string $component The name of the front-end component to render.
      * @param array<string, mixed> $props Resolved page props passed to the front-end component.
      * @param string $url The request URL included in the page payload.
-     * @param string|int $version The current page version used to detect stale client pages.
+     * @param int|string $version The current page version used to detect stale client pages.
      */
     public function __construct(
         public readonly string $component,
@@ -263,7 +263,7 @@ final class Page implements JsonSerializable
      *
      * @return Page A new instance containing the supplied clear-history setting.
      */
-    public function withClearHistory(bool $clearHistory = true): Page
+    public function withClearHistory(bool $clearHistory = true): self
     {
         $clone = clone $this;
         $clone->clearHistory = $clearHistory;
@@ -278,7 +278,7 @@ final class Page implements JsonSerializable
      *
      * @return Page A new instance containing the supplied encrypt-history setting.
      */
-    public function withEncryptHistory(bool $encryptHistory = true): Page
+    public function withEncryptHistory(bool $encryptHistory = true): self
     {
         $clone = clone $this;
         $clone->encryptHistory = $encryptHistory;
@@ -293,7 +293,7 @@ final class Page implements JsonSerializable
      *
      * @return Page A new instance containing the supplied flash data.
      */
-    public function withFlash(array $flash): Page
+    public function withFlash(array $flash): self
     {
         $clone = clone $this;
         $clone->flash = $flash;
@@ -308,7 +308,7 @@ final class Page implements JsonSerializable
      *
      * @return Page A new instance containing the supplied client-side metadata.
      */
-    public function withMetadata(PageMetadata $metadata): Page
+    public function withMetadata(PageMetadata $metadata): self
     {
         $clone = clone $this;
         $clone->metadata = $metadata;
@@ -323,7 +323,7 @@ final class Page implements JsonSerializable
      *
      * @return Page A new instance containing the supplied preserve-fragment setting.
      */
-    public function withPreserveFragment(bool $preserveFragment = true): Page
+    public function withPreserveFragment(bool $preserveFragment = true): self
     {
         $clone = clone $this;
         $clone->preserveFragment = $preserveFragment;
