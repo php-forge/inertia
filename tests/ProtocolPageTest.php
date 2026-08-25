@@ -428,6 +428,7 @@ final class ProtocolPageTest extends TestCase
             'Result headers must match the expected value.',
         );
     }
+
     public function testProducesInitialPageWithExplicitInputs(): void
     {
         $result = (new Protocol())

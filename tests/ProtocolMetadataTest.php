@@ -83,6 +83,7 @@ final class ProtocolMetadataTest extends TestCase
             'Resolved page props must match the expected value.',
         );
     }
+
     public function testCollectsMultipleMetadataEntriesWithoutDiscardingEarlierProps(): void
     {
         $metadata = new ScrollMetadata('page', null, null, 1);

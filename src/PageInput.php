@@ -24,7 +24,7 @@ final readonly class PageInput
     /**
      * @param string $component The name of the front-end component to render.
      * @param array<string, mixed> $props Page-specific props, merged over shared props during resolution.
-     * @param string|int $version The current page version, used to detect stale pages on the client.
+     * @param int|string $version The current page version, used to detect stale pages on the client.
      * @param array<string, mixed> $sharedProps Props shared across all pages, overridden by page-specific props.
      * @param array<array-key, mixed> $errors Validation error messages keyed by field name.
      * @param array<string, mixed> $flash Flash data passed alongside the page response.
