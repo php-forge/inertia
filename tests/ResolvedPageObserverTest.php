@@ -38,7 +38,8 @@ final class ResolvedPageObserverTest extends TestCase
                 'Dashboard',
                 ['user' => ['name' => 'Ada'], 'errors' => ['email' => 'Invalid']],
                 '/dashboard',
-                'v1')
+                'v1'
+            )
         )->withMetadata((new PageMetadata())->withSharedProps(['user']));
 
         $payload = $page->toArray();
