@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.1 Under development
 
+- feat: add a portable resolved-page observer that forwards page payloads and shared-prop keys to callbacks.
+
 ## 0.2.0 August 25, 2026
 
 - docs: add `Next steps` section with links to installation, usage, configuration, and testing guides.
