@@ -81,6 +81,20 @@ $result = Protocol::create()->page($request, $input);
 `Protocol` does not return a framework response. An adapter inspects the result, applies `statusCode()` and `headers()`,
 serializes `page()` for an Inertia visit, or embeds the page JSON in the root HTML document for an initial visit.
 
+## Reolved-page observation
+
+`PHPForge\Inertia\ResolvedPageObserver` forwards the resolved page payload and shared-prop keys to a callback.
+Observer failures propagate to the caller; the observer does not mutate pages or hide callback failures.
+
+```php
+$observer = new \PHPForge\Inertia\ResolvedPageObserver($collector->observe(...));
+
+$observer->observe($page);
+```
+
+The callback receives `array<string, mixed>` page data and `list<string>` shared-prop keys, without depending on a debugger
+or framework. The class is extensible so adapters can preserve their own observer interfaces without duplicating logic.
+
 ## Adapter boundary
 
 The core owns protocol decisions and page shaping. A framework adapter remains responsible for:
