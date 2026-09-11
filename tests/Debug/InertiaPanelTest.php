@@ -116,7 +116,7 @@ final class InertiaPanelTest extends TestCase
         $data['sharedKeys'] = ['auth'];
         $data['requestHeaders'] = [
             'X-Inertia' => 'true',
-            'X-Inertia-Version' => '1'
+            'X-Inertia-Version' => '1',
         ];
 
         $view = (new InertiaPanel())->present($data);
