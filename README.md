@@ -102,9 +102,10 @@ See the [configuration reference](docs/configuration.md) for the complete result
 
 ## Debugger integration
 
-`Protocol` emits `ProtocolResultCreated` through an optional PSR-14 dispatcher. The package never imports debug
-contracts or calls a collector, so installing it does not activate a debugger and a call without a dispatcher emits no
-events. The collector and panel live in `PHPForge\Inertia\Debug`, owned by this package.
+`Protocol` emits `ProtocolResultCreated` through an optional PSR-14 dispatcher. The protocol core never imports a debug
+contract or calls a collector, so installing the package does not activate a debugger and a call without a dispatcher
+emits no events. The collector and panel that do implement those contracts live apart, in `PHPForge\Inertia\Debug`,
+owned by this package.
 
 See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
 
