@@ -20,7 +20,7 @@
     "require": {
         "ext-json": "*",
         "php": ">=8.3",
-        "php-forge/debug": "^0.1@dev",
+        "php-forge/debug": "^0.1",
         "psr/event-dispatcher": "^1.0"
     },
     "require-dev": {
@@ -45,7 +45,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.3.x-dev"
+            "dev-main": "0.4.x-dev"
         }
     },
     "support": {

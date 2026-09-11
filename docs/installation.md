@@ -11,7 +11,7 @@ No PHP framework, PSR-7 implementation, session library, template engine, or fro
 ## Install with Composer
 
 ```bash
-composer require php-forge/inertia:^0.2
+composer require php-forge/inertia:^0.3
 ```
 
 The package exposes the `PHPForge\Inertia\` namespace through PSR-4 autoloading.
