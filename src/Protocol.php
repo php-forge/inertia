@@ -6,6 +6,7 @@ namespace PHPForge\Inertia;
 
 use InvalidArgumentException;
 use PHPForge\Inertia\Clock\{Clock, SystemClock};
+use PHPForge\Inertia\Event\ProtocolResultCreated;
 use PHPForge\Inertia\Exception\Message;
 use PHPForge\Inertia\Resolution\PropResolver;
 use PHPForge\Inertia\Result\{
@@ -16,6 +17,8 @@ use PHPForge\Inertia\Result\{
     RedirectResult,
     VersionConflictResult,
 };
+use PHPForge\Inertia\Result\ProtocolResult;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 use function in_array;
 use function is_array;
@@ -38,9 +41,12 @@ final readonly class Protocol
 
     /**
      * @param Clock|null $clock Clock used for once-prop expiration. Defaults to {@see SystemClock}.
+     * @param EventDispatcherInterface|null $eventDispatcher Optional dispatcher for completed protocol operations.
      */
-    public function __construct(Clock|null $clock = null)
-    {
+    public function __construct(
+        Clock|null $clock = null,
+        private EventDispatcherInterface|null $eventDispatcher = null,
+    ) {
         $this->clock = $clock ?? new SystemClock();
     }
 
@@ -48,12 +54,15 @@ final readonly class Protocol
      * Creates a protocol instance with an optional clock.
      *
      * @param Clock|null $clock Clock used for once-prop expiration. Defaults to {@see SystemClock}.
+     * @param EventDispatcherInterface|null $eventDispatcher Optional dispatcher for completed protocol operations.
      *
      * @return Protocol A new protocol instance.
      */
-    public static function create(Clock|null $clock = null): self
-    {
-        return new self($clock);
+    public static function create(
+        Clock|null $clock = null,
+        EventDispatcherInterface|null $eventDispatcher = null,
+    ): self {
+        return new self($clock, $eventDispatcher);
     }
 
     /**
@@ -75,9 +84,9 @@ final readonly class Protocol
             );
         }
 
-        return $request->isInertia()
+        return $this->announce($request, $request->isInertia()
             ? new LocationResult($absoluteUrl)
-            : new RedirectResult($absoluteUrl);
+            : new RedirectResult($absoluteUrl));
     }
 
     /**
@@ -104,7 +113,7 @@ final readonly class Protocol
             && $request->requestVersion() !== null
             && $request->requestVersion() !== (string) $input->version
         ) {
-            return new VersionConflictResult($request->absoluteUrl, $input->version);
+            return $this->announce($request, new VersionConflictResult($request->absoluteUrl, $input->version));
         }
 
         $resolved = (new PropResolver($request, $input->component, $this->clock))->resolve($input);
@@ -120,9 +129,9 @@ final readonly class Protocol
             ->withClearHistory($input->clearHistory())
             ->withPreserveFragment($input->preserveFragment());
 
-        return $request->isInertia()
+        return $this->announce($request, $request->isInertia()
             ? new InertiaPageResult($page, $resolved->rescuedFailures)
-            : new InitialPageResult($page, $resolved->rescuedFailures);
+            : new InitialPageResult($page, $resolved->rescuedFailures));
     }
 
     /**
@@ -155,7 +164,7 @@ final readonly class Protocol
         }
 
         if ($request->isInertia() && !$request->isPrefetch() && str_contains($url, '#')) {
-            return new FragmentRedirectResult($this->absoluteRedirectUrl($request, $url));
+            return $this->announce($request, new FragmentRedirectResult($this->absoluteRedirectUrl($request, $url)));
         }
 
         if (
@@ -166,7 +175,7 @@ final readonly class Protocol
             $statusCode = 303;
         }
 
-        return new RedirectResult($url, $statusCode);
+        return $this->announce($request, new RedirectResult($url, $statusCode));
     }
 
     /**
@@ -199,6 +208,18 @@ final readonly class Protocol
         $port = isset($parts['port']) ? ':' . $parts['port'] : '';
 
         return $parts['scheme'] . '://' . $parts['host'] . $port . $url;
+    }
+
+    /**
+     * @template T of ProtocolResult
+     * @param T $result
+     * @return T
+     */
+    private function announce(RequestContext $request, ProtocolResult $result): ProtocolResult
+    {
+        $this->eventDispatcher?->dispatch(new ProtocolResultCreated($request, $result));
+
+        return $result;
     }
 
     /**

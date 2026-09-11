@@ -28,8 +28,6 @@ implement a small adapter that can:
 
 Continue with the [configuration and adapter reference](configuration.md).
 
-## Next steps
+---
 
-- ⚙️ [Configuration and adapter reference](configuration.md)
-- 💡 [Usage examples](examples.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

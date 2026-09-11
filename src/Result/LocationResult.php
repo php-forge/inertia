@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Result;
 
+use PHPForge\Inertia\Header;
+
 /**
  * Represents an Inertia external-location visit using a `409` protocol response.
  */
@@ -22,8 +24,8 @@ final readonly class LocationResult implements ProtocolResult
     public function headers(): array
     {
         return [
-            'X-Inertia-Location' => $this->url,
-            'Vary' => 'X-Inertia',
+            Header::LOCATION->value => $this->url,
+            Header::VARY->value => Header::INERTIA->value,
         ];
     }
 

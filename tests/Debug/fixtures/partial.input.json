@@ -1,0 +1,17 @@
+{
+  "page": {
+    "component": "Site",
+    "url": "/café",
+    "version": "v1",
+    "props": {
+      "title": "value"
+    }
+  },
+  "requestHeaders": {
+    "X-Inertia": "true",
+    "X-Inertia-Partial-Data": "title"
+  },
+  "sharedKeys": [],
+  "statusCode": 200,
+  "location": null
+}

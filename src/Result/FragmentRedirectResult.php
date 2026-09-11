@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Result;
 
+use PHPForge\Inertia\Header;
+
 /**
  * Represents an Inertia redirect whose URL fragment must be handled by the client.
  */
@@ -22,8 +24,8 @@ final readonly class FragmentRedirectResult implements ProtocolResult
     public function headers(): array
     {
         return [
-            'X-Inertia-Redirect' => $this->url,
-            'Vary' => 'X-Inertia',
+            Header::REDIRECT->value => $this->url,
+            Header::VARY->value => Header::INERTIA->value,
         ];
     }
 

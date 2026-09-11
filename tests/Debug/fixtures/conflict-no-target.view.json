@@ -1,0 +1,77 @@
+{
+    "summary": [
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "—",
+                "style": "strong"
+            }
+        },
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Version conflict",
+                "style": "plain"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "emptyState",
+            "title": "Version conflict interrupted this visit",
+            "paragraphs": [
+                {
+                    "kind": "paragraph",
+                    "content": [
+                        {
+                            "kind": "text",
+                            "value": "The client asset version sent in ",
+                            "style": "plain"
+                        },
+                        {
+                            "kind": "text",
+                            "value": "X-Inertia-Version",
+                            "style": "code"
+                        },
+                        {
+                            "kind": "text",
+                            "value": " no longer matches the server version, so Inertia answered ",
+                            "style": "plain"
+                        },
+                        {
+                            "kind": "text",
+                            "value": "409",
+                            "style": "code"
+                        },
+                        {
+                            "kind": "text",
+                            "value": " and asked the client to reload the full page.",
+                            "style": "plain"
+                        }
+                    ],
+                    "tone": null
+                },
+                {
+                    "kind": "paragraph",
+                    "content": [
+                        {
+                            "kind": "text",
+                            "value": "Reload target: ",
+                            "style": "plain"
+                        },
+                        {
+                            "kind": "text",
+                            "value": "—",
+                            "style": "code"
+                        }
+                    ],
+                    "tone": null
+                }
+            ]
+        }
+    ],
+    "toolbar": [],
+    "active": false
+}

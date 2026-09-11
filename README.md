@@ -83,17 +83,9 @@ serializes `page()` for an Inertia visit, or embeds the page JSON in the root HT
 
 ## Resolved-page observation
 
-`PHPForge\Inertia\ResolvedPageObserver` forwards the resolved page payload and shared-prop keys to a callback.
-Observer failures propagate to the caller; the observer does not mutate pages or hide callback failures.
-
-```php
-$observer = new \PHPForge\Inertia\ResolvedPageObserver($collector->observe(...));
-
-$observer->observe($page);
-```
-
-The callback receives `array<string, mixed>` page data and `list<string>` shared-prop keys, without depending on a debugger
-or framework. The class is extensible so adapters can preserve their own observer interfaces without duplicating logic.
+The existing `ResolvedPageObserver` callback remains available to older adapters. New diagnostic integrations use
+`Event/ProtocolResultCreated` through the optional PSR-14 dispatcher instead; see [debugging](docs/debugging.md).
+Do not wire both paths to the same diagnostic collector.
 
 ## Adapter boundary
 
@@ -108,11 +100,38 @@ The core owns protocol decisions and page shaping. A framework adapter remains r
 
 See the [configuration reference](docs/configuration.md) for the complete result mapping.
 
+## Debugger integration
+
+`Protocol` emits `ProtocolResultCreated` through an optional PSR-14 dispatcher. The package never imports debug
+contracts or calls a collector, so installing it does not activate a debugger and a call without a dispatcher emits no
+events. The collector and panel live in `PHPForge\Inertia\Debug`, owned by this package.
+
+See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
+
+<details>
+<summary>Yii2</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii2-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii2-light.png">
+    <img src="docs/images/yii2-light.png" alt="Inertia panel in Yii2">
+</picture>
+</details>
+
+<details>
+<summary>Yii3</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii3-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii3-light.png">
+    <img src="docs/images/yii3-light.png" alt="Inertia panel in Yii3">
+</picture>
+</details>
+
 ## Documentation
 
 - 📚 [Installation guide](docs/installation.md)
 - ⚙️ [Configuration and adapter reference](docs/configuration.md)
 - 💡 [Usage examples](docs/examples.md)
+- 🐞 [Debugger integration](docs/debugging.md)
 - 🧪 [Testing guide](docs/testing.md)
 - 📖 [Inertia.js protocol documentation](https://inertiajs.com/docs/v3/core-concepts/the-protocol)
 
@@ -121,18 +140,9 @@ See the [configuration reference](docs/configuration.md) for the complete result
 [![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.3/en.php)
 [![Latest Stable Version](https://img.shields.io/packagist/v/php-forge/inertia.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/php-forge/inertia)
 [![Total Downloads](https://img.shields.io/packagist/dt/php-forge/inertia.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/php-forge/inertia)
-
-## Code quality
-
 [![Codecov](https://img.shields.io/codecov/c/github/php-forge/inertia.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/gh/php-forge/inertia)
 [![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/php-forge/inertia/actions/workflows/static.yml)
 [![Quality](https://img.shields.io/github/actions/workflow/status/php-forge/inertia/quality.yml?style=for-the-badge&label=Quality&logo=github)](https://github.com/php-forge/inertia/actions/workflows/quality.yml)
 [![StyleCI](https://img.shields.io/badge/StyleCI-Passed-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/1342862957?branch=main)
-
-## Social networks
-
-[![Follow on X](https://img.shields.io/badge/-Follow%20on%20X-1DA1F2.svg?style=for-the-badge&logo=x&logoColor=white&labelColor=000000)](https://x.com/Terabytesoftw)
-
-## License
-
 [![License](https://img.shields.io/badge/License-BSD--3--Clause-brightgreen.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&labelColor=555555)](LICENSE)
+[![Follow on X](https://img.shields.io/badge/-Follow%20on%20X-1DA1F2.svg?style=for-the-badge&logo=x&logoColor=white&labelColor=000000)](https://x.com/Terabytesoftw)

@@ -30,47 +30,6 @@ use function trim;
 final readonly class RequestContext
 {
     /**
-     * Header name for the Inertia error bag.
-     */
-    public const string HEADER_ERROR_BAG = 'X-Inertia-Error-Bag';
-    /**
-     * Header name for the Inertia once-prop cache keys to exclude from the response.
-     */
-    public const string HEADER_EXCEPT_ONCE_PROPS = 'X-Inertia-Except-Once-Props';
-    /**
-     * Header name for the Inertia infinite-scroll merge intent.
-     */
-    public const string HEADER_INERTIA = 'X-Inertia';
-    /**
-     * Header name for the Inertia infinite-scroll merge intent.
-     */
-    public const string HEADER_INFINITE_SCROLL_MERGE_INTENT = 'X-Inertia-Infinite-Scroll-Merge-Intent';
-    /**
-     * Header name for the Inertia partial reload component name.
-     */
-    public const string HEADER_PARTIAL_COMPONENT = 'X-Inertia-Partial-Component';
-    /**
-     * Header name for the Inertia partial reload prop paths to include in the response.
-     */
-    public const string HEADER_PARTIAL_DATA = 'X-Inertia-Partial-Data';
-    /**
-     * Header name for the Inertia partial reload prop paths to exclude from the response.
-     */
-    public const string HEADER_PARTIAL_EXCEPT = 'X-Inertia-Partial-Except';
-    /**
-     * Header name for the Inertia prefetch purpose.
-     */
-    public const string HEADER_PURPOSE = 'Purpose';
-    /**
-     * Header name for the Inertia reset prop paths.
-     */
-    public const string HEADER_RESET = 'X-Inertia-Reset';
-    /**
-     * Header name for the Inertia asset version.
-     */
-    public const string HEADER_VERSION = 'X-Inertia-Version';
-
-    /**
      * @var string The HTTP request method, normalized to uppercase.
      */
     public string $method;
@@ -125,7 +84,7 @@ final readonly class RequestContext
      */
     public function errorBag(): string|null
     {
-        $trimmed = trim($this->header(self::HEADER_ERROR_BAG) ?? '');
+        $trimmed = trim($this->header(Header::ERROR_BAG->value) ?? '');
 
         return $trimmed === '' ? null : $trimmed;
     }
@@ -137,7 +96,7 @@ final readonly class RequestContext
      */
     public function exceptOnceProps(): array
     {
-        return $this->headerList(self::HEADER_EXCEPT_ONCE_PROPS);
+        return $this->headerList(Header::EXCEPT_ONCE_PROPS->value);
     }
 
     /**
@@ -192,7 +151,7 @@ final readonly class RequestContext
      */
     public function infiniteScrollMergeIntent(): string
     {
-        return $this->normalizedHeader(self::HEADER_INFINITE_SCROLL_MERGE_INTENT) === 'prepend'
+        return $this->normalizedHeader(Header::INFINITE_SCROLL_MERGE_INTENT->value) === 'prepend'
             ? 'prepend'
             : 'append';
     }
@@ -214,7 +173,7 @@ final readonly class RequestContext
      */
     public function isInertia(): bool
     {
-        $value = $this->normalizedHeader(self::HEADER_INERTIA);
+        $value = $this->normalizedHeader(Header::INERTIA->value);
 
         return $value === 'true' || $value === '1';
     }
@@ -228,7 +187,7 @@ final readonly class RequestContext
      */
     public function isPartialReloadFor(string $component): bool
     {
-        return $this->isInertia() && $this->header(self::HEADER_PARTIAL_COMPONENT) === $component;
+        return $this->isInertia() && $this->header(Header::PARTIAL_COMPONENT->value) === $component;
     }
 
     /**
@@ -238,7 +197,7 @@ final readonly class RequestContext
      */
     public function isPrefetch(): bool
     {
-        return $this->normalizedHeader(self::HEADER_PURPOSE) === 'prefetch';
+        return $this->normalizedHeader(Header::PURPOSE->value) === 'prefetch';
     }
 
     /**
@@ -248,7 +207,7 @@ final readonly class RequestContext
      */
     public function partialData(): array
     {
-        return $this->headerList(self::HEADER_PARTIAL_DATA);
+        return $this->headerList(Header::PARTIAL_DATA->value);
     }
 
     /**
@@ -258,7 +217,7 @@ final readonly class RequestContext
      */
     public function partialExcept(): array
     {
-        return $this->headerList(self::HEADER_PARTIAL_EXCEPT);
+        return $this->headerList(Header::PARTIAL_EXCEPT->value);
     }
 
     /**
@@ -268,7 +227,7 @@ final readonly class RequestContext
      */
     public function requestVersion(): string|null
     {
-        return $this->header(self::HEADER_VERSION);
+        return $this->header(Header::VERSION->value);
     }
 
     /**
@@ -278,7 +237,7 @@ final readonly class RequestContext
      */
     public function resetProps(): array
     {
-        return $this->headerList(self::HEADER_RESET);
+        return $this->headerList(Header::RESET->value);
     }
 
     /**
@@ -352,16 +311,16 @@ final readonly class RequestContext
             array_map(
                 strtolower(...),
                 [
-                    self::HEADER_ERROR_BAG,
-                    self::HEADER_EXCEPT_ONCE_PROPS,
-                    self::HEADER_INERTIA,
-                    self::HEADER_INFINITE_SCROLL_MERGE_INTENT,
-                    self::HEADER_PARTIAL_COMPONENT,
-                    self::HEADER_PARTIAL_DATA,
-                    self::HEADER_PARTIAL_EXCEPT,
-                    self::HEADER_PURPOSE,
-                    self::HEADER_RESET,
-                    self::HEADER_VERSION,
+                    Header::ERROR_BAG->value,
+                    Header::EXCEPT_ONCE_PROPS->value,
+                    Header::INERTIA->value,
+                    Header::INFINITE_SCROLL_MERGE_INTENT->value,
+                    Header::PARTIAL_COMPONENT->value,
+                    Header::PARTIAL_DATA->value,
+                    Header::PARTIAL_EXCEPT->value,
+                    Header::PURPOSE->value,
+                    Header::RESET->value,
+                    Header::VERSION->value,
                 ],
             ),
             true,
