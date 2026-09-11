@@ -344,6 +344,7 @@ final class InertiaCollectorTest extends TestCase
             'One event per protocol call.',
         );
     }
+
     public function testResolvedPropsAreObservedOnceAndSanitizedOnlyDuringCapture(): void
     {
         $counter = new class {
@@ -800,6 +801,7 @@ final class InertiaCollectorTest extends TestCase
                     {
                         return [];
                     }
+
                     public function statusCode(): int
                     {
                         return 200;
