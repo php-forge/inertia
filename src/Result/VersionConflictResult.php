@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Result;
 
+use PHPForge\Inertia\Header;
+
 /**
  * Represents an asset-version mismatch that instructs the client to perform a full-page visit.
  */
@@ -23,9 +25,9 @@ final readonly class VersionConflictResult implements ProtocolResult
     public function headers(): array
     {
         return [
-            'X-Inertia-Location' => $this->url,
-            'X-Inertia-Version' => (string) $this->version,
-            'Vary' => 'X-Inertia',
+            Header::LOCATION->value => $this->url,
+            Header::VERSION->value => (string) $this->version,
+            Header::VARY->value => Header::INERTIA->value,
         ];
     }
 

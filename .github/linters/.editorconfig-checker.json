@@ -2,6 +2,7 @@
     "Exclude": [
         "^composer\\.lock$",
         "^runtime/",
+        "^tests/Debug/fixtures/",
         "^vendor/"
     ]
 }

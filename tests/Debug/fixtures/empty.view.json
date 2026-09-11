@@ -1,0 +1,62 @@
+{
+    "summary": [
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "—",
+                "style": "strong"
+            }
+        },
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Full page load",
+                "style": "plain"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "emptyState",
+            "title": "No Inertia page in this request",
+            "paragraphs": [
+                {
+                    "kind": "paragraph",
+                    "content": [
+                        {
+                            "kind": "text",
+                            "value": "This response was not produced by ",
+                            "style": "plain"
+                        },
+                        {
+                            "kind": "text",
+                            "value": "Inertia::render()",
+                            "style": "code"
+                        },
+                        {
+                            "kind": "text",
+                            "value": ", so there is no page object to inspect.",
+                            "style": "plain"
+                        }
+                    ],
+                    "tone": null
+                },
+                {
+                    "kind": "paragraph",
+                    "content": [
+                        {
+                            "kind": "text",
+                            "value": "Both full page loads and Inertia XHR visits populate this view; plain JSON endpoints, redirects, and asset requests do not.",
+                            "style": "plain"
+                        }
+                    ],
+                    "tone": null
+                }
+            ]
+        }
+    ],
+    "toolbar": [],
+    "active": false
+}

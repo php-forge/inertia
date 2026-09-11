@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Result;
 
+use PHPForge\Inertia\Header;
 use PHPForge\Inertia\Page;
 
 /**
@@ -25,13 +26,15 @@ final readonly class InertiaPageResult implements PageResult
     public function headers(): array
     {
         return [
-            'X-Inertia' => 'true',
-            'Vary' => 'X-Inertia',
+            Header::INERTIA->value => 'true',
+            Header::VARY->value => Header::INERTIA->value,
         ];
     }
 
     /**
      * Returns the resolved Inertia page payload.
+     *
+     * @return Page The resolved Inertia page payload.
      */
     public function page(): Page
     {

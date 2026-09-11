@@ -86,19 +86,16 @@ custom `Clock` through `Protocol::create($clock)` or its constructor when determ
 
 ## Low-level public API
 
-Every package class is a public contract. Advanced integrations may use `PHPForge\Inertia\Resolution\PropResolver`
-directly when they need resolved page data without protocol result negotiation. `PageMetadata` exposes immutable page
-metadata, while `PropDefinition`, `ResolvedPageData`, and `ResolvedProp` in the `Resolution` namespace expose the
-corresponding resolution values.
+Every package class is a public contract; the `Resolution` and `Support` namespaces only group low-level utilities.
 
-`PHPForge\Inertia\Support\DotArray` provides the package's strict dot-notation expansion, while
-`PHPForge\Inertia\Support\JsonValue` validates and normalizes prop values. These classes are public contracts; the
-`Support` namespace only groups low-level utilities.
+Advanced integrations may use `PHPForge\Inertia\Resolution\PropResolver` directly when they need resolved page data
+without protocol result negotiation. `PageMetadata` exposes immutable page metadata, and `PropDefinition`,
+`ResolvedPageData` and `ResolvedProp` expose the corresponding resolution values. `Support\DotArray` provides the
+strict dot-notation expansion; `Support\JsonValue` validates and normalizes prop values.
 
 ## Page results
 
-Call `Protocol::create()->page($request, $input)`, or invoke `page()` on a directly constructed `Protocol`. The adapter maps
-the returned value as follows:
+Call `page($request, $input)` on the protocol. The adapter maps the returned value as follows:
 
 | Result                  | Status | Adapter body responsibility                                         |
 | ----------------------- | -----: | ------------------------------------------------------------------- |
@@ -141,8 +138,6 @@ The core does not perform any of the following tasks:
 
 These responsibilities remain explicit in the adapter so the protocol core stays deterministic and reusable.
 
-## Next steps
+---
 
-- 📚 [Installation guide](installation.md)
-- 💡 [Usage examples](examples.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

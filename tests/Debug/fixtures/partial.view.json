@@ -1,0 +1,151 @@
+{
+    "summary": [
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Site",
+                "style": "strong"
+            }
+        },
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Partial reload",
+                "style": "plain"
+            }
+        },
+        {
+            "label": " prop",
+            "value": {
+                "kind": "text",
+                "value": "1",
+                "style": "strong"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "overview",
+            "fields": [
+                {
+                    "label": "Component",
+                    "value": {
+                        "kind": "text",
+                        "value": "Site",
+                        "style": "plain"
+                    }
+                },
+                {
+                    "label": "URL",
+                    "value": {
+                        "kind": "text",
+                        "value": "/café",
+                        "style": "plain"
+                    }
+                },
+                {
+                    "label": "Version",
+                    "value": {
+                        "kind": "text",
+                        "value": "v1",
+                        "style": "plain"
+                    }
+                },
+                {
+                    "label": "Visit",
+                    "value": {
+                        "kind": "text",
+                        "value": "Partial reload",
+                        "style": "plain"
+                    }
+                },
+                {
+                    "label": "Status",
+                    "value": {
+                        "kind": "text",
+                        "value": "200",
+                        "style": "plain"
+                    }
+                },
+                {
+                    "label": "X-Inertia-Partial-Data",
+                    "value": {
+                        "kind": "text",
+                        "value": "title",
+                        "style": "plain"
+                    }
+                }
+            ],
+            "compact": false
+        },
+        {
+            "kind": "heading",
+            "title": "Props",
+            "section": false
+        },
+        {
+            "kind": "table",
+            "headers": [
+                "#",
+                "Prop",
+                "Origin",
+                "Type",
+                "Value"
+            ],
+            "rows": [
+                [
+                    {
+                        "kind": "text",
+                        "value": "1",
+                        "style": "plain"
+                    },
+                    {
+                        "kind": "text",
+                        "value": "title",
+                        "style": "strong"
+                    },
+                    {
+                        "kind": "badge",
+                        "label": "page",
+                        "tone": "muted"
+                    },
+                    {
+                        "kind": "value",
+                        "value": "value",
+                        "typeOnly": true
+                    },
+                    {
+                        "kind": "value",
+                        "value": "value",
+                        "typeOnly": false
+                    }
+                ]
+            ],
+            "styles": {
+                "1": "identifier",
+                "2": "pill",
+                "3": "identifier",
+                "4": "payload"
+            },
+            "collapsible": true
+        },
+        {
+            "kind": "disclosure",
+            "title": "Raw payload",
+            "content": "{\n    \"component\": \"Site\",\n    \"url\": \"/café\",\n    \"version\": \"v1\",\n    \"props\": {\n        \"title\": \"value\"\n    }\n}"
+        }
+    ],
+    "toolbar": [
+        {
+            "label": "Inertia component",
+            "value": {
+                "kind": "text",
+                "value": "Site",
+                "style": "plain"
+            }
+        }
+    ],
+    "active": true
+}

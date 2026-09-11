@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPForge\Inertia\Result;
 
+use PHPForge\Inertia\Header;
+
 /**
  * Represents a standard HTTP redirect with its validated status code and target URL.
  */
@@ -24,7 +26,7 @@ final readonly class RedirectResult implements ProtocolResult
     {
         return [
             'Location' => $this->url,
-            'Vary' => 'X-Inertia',
+            Header::VARY->value => Header::INERTIA->value,
         ];
     }
 

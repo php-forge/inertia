@@ -7,7 +7,8 @@ namespace PHPForge\Inertia\Exception;
 use function sprintf;
 
 /**
- * Defines exception message templates for invalid protocol input and prop resolution failures.
+ * Defines exception message templates for invalid protocol input, prop resolution failures, and debug
+ * diagnostics.
  *
  * Use {@see Message::getMessage()} to format a template with `sprintf()` arguments.
  */
@@ -34,6 +35,27 @@ enum Message: string
      */
     case DEFERRED_PROP_GROUP_INVALID
         = 'A deferred prop group must be non-empty and contain no control characters or commas.';
+
+    /**
+     * The decoded diagnostics carry a malformed status, headers, shared keys, or location.
+     *
+     * Format: "Invalid decoded Inertia diagnostics."
+     */
+    case DIAGNOSTICS_INVALID = 'Invalid decoded Inertia diagnostics.';
+
+    /**
+     * The capture declares a protocol result type the panel does not present.
+     *
+     * Format: "Invalid Inertia protocol result type."
+     */
+    case DIAGNOSTICS_RESULT_TYPE_INVALID = 'Invalid Inertia protocol result type.';
+
+    /**
+     * The observed protocol result is not one the collector can capture.
+     *
+     * Format: "Unsupported Inertia protocol result."
+     */
+    case DIAGNOSTICS_RESULT_UNSUPPORTED = 'Unsupported Inertia protocol result.';
 
     /**
      * An error field does not contain a supported message value.
