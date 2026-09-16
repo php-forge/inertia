@@ -551,7 +551,7 @@ final class InertiaCollectorTest extends TestCase
         );
         self::assertSame(
             'Original',
-            (new InertiaPanel())->present($payload)->toolbarMetrics()[0]['value']['value'] ?? null,
+            (new InertiaPanel())->present($payload)->toolbarMetrics()[0]->value ?? null,
             'A replayed capture must keep its component metric.',
         );
         self::assertSame(
