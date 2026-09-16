@@ -129,7 +129,8 @@
                 "3": "identifier",
                 "4": "payload"
             },
-            "collapsible": true
+            "collapsible": true,
+            "filterable": false
         },
         {
             "kind": "disclosure",
