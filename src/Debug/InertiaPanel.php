@@ -89,8 +89,7 @@ final class InertiaPanel extends Panel
 
         $view = PanelView::create()
             ->summary('', $component !== '' ? $component : '—')
-            ->summary('', $visit, emphasized: false)
-            ->active($page !== null || isset($headers[Header::INERTIA->value]));
+            ->summary('', $visit, emphasized: false);
 
         if ($component !== '') {
             $view = $view->toolbar('Inertia component', $component);

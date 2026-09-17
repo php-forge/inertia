@@ -676,7 +676,6 @@ final class InertiaCollectorTest extends TestCase
             $expected = \PHPForge\Debug\PanelView::create()
                 ->summary('', '—')
                 ->summary('', $label, emphasized: false)
-                ->active($inertia)
                 ->emptyState(
                     $title,
                     'The protocol returned a navigation result without resolving a page.',
