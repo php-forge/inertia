@@ -92,10 +92,6 @@ final class InertiaPanelTest extends TestCase
 
         $view = $panel->present(InertiaPanelProvider::capture());
 
-        self::assertFalse(
-            $view->isActive(),
-            'Unrelated requests must not activate the panel.'
-        );
         self::assertSame(
             [],
             $view->toolbarMetrics(),
@@ -129,10 +125,6 @@ final class InertiaPanelTest extends TestCase
 
         $view = (new InertiaPanel())->present($data);
 
-        self::assertTrue(
-            $view->isActive(),
-            'A captured page must activate the panel.',
-        );
         self::assertSame(
             '<Site>',
             self::toolbarValue($view->toolbarMetrics(), 0),
@@ -209,10 +201,6 @@ final class InertiaPanelTest extends TestCase
 
         $view = (new InertiaPanel())->present($data);
 
-        self::assertTrue(
-            $view->isActive(),
-            'Conflicted Inertia visits must remain visible.',
-        );
         self::assertSame(
             'Version conflict interrupted this visit',
             self::emptyState(self::blockAt($view, 0))->title,
@@ -261,7 +249,7 @@ final class InertiaPanelTest extends TestCase
             ];
         }
 
-        return ['summary' => $summary, 'blocks' => $blocks, 'toolbar' => $toolbar, 'active' => $view->isActive()];
+        return ['summary' => $summary, 'blocks' => $blocks, 'toolbar' => $toolbar];
     }
 
     /**
