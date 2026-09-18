@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-composer require php-forge/inertia:^0.4
+composer require php-forge/inertia:^0.5
 ```
 
 PHP 8.3 or later and the JSON extension are required.
