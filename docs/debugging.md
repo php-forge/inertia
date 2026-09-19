@@ -23,43 +23,23 @@ The package ships one collector and one panel, `PHPForge\Inertia\Debug\InertiaCo
 `PHPForge\Inertia\Debug\InertiaPanel`; the host never reimplements collection or presentation. What differs between
 frameworks is only how the dispatcher reaches the `PHPForge\Inertia\Protocol` service.
 
-### Yii3, one flag and no application code
+### Yii3, nothing to add
 
-`yii3/debug` registers the collector and panel behind a flag and attaches the collector as a listener; the container
-autowires `Psr\EventDispatcher\EventDispatcherInterface` into `Protocol`, so the application adds nothing else.
+`yii3/debug` registers the collector and the panel in its packaged parameters as soon as this package is installed,
+routes `ProtocolResultCreated` to that collector from its packaged `events-web` group, and builds the collector with
+the host `CapturePolicy` redaction callbacks. The container autowires `Psr\EventDispatcher\EventDispatcherInterface`
+into `Protocol`, so the application adds nothing. Disable both packaged entries with `enabled => false` when the
+capture is unwanted.
 
-```php
-return [
-    'yii3/debug' => [
-        'extensions' => [
-            'inertia' => true,
-        ],
-    ],
-];
-```
-
-Enabling the flag without `php-forge/inertia` installed fails with an explicit container error. The collector receives
-the host `CapturePolicy` redaction callbacks automatically.
-
-### Yii2, one registration
+### Yii2, nothing to add
 
 Yii2 has no framework-native PSR-14 dispatcher, and its DI container does not autowire optional constructor arguments.
-`Protocol` emits exactly one event type, so `InertiaCollector` is its own single-listener dispatcher and the
-application writes no PSR-14 code.
-
-Inside the existing `YII_DEBUG` configuration guard:
-
-```php
-use PHPForge\Inertia\Debug\{InertiaCollector, InertiaPanel};
-use PHPForge\Inertia\Protocol;
-
-$inertiaCollector = new InertiaCollector();
-
-// Keep the component ID already used by the application.
-$config['components']['inertia']['protocol'] = Protocol::create(eventDispatcher: $inertiaCollector);
-$config['modules']['debug']['collectors']['inertia'] = $inertiaCollector;
-$config['modules']['debug']['panels']['inertia'] = new InertiaPanel();
-```
+`Protocol` emits exactly one event type, so `InertiaCollector` is its own single-listener dispatcher.
+`yii2-extensions/debug` registers the collector and the panel once this package is installed, builds the collector
+with the module capture policy, and hands it to the `inertia` component through
+`yii\inertia\Manager::$eventDispatcher` before the request runs. A component that configures `eventDispatcher` or
+`protocol` itself keeps what it configures; disable the packaged entries with `enabled => false` when the capture is
+unwanted.
 
 If the application already owns a real PSR-14 dispatcher, register the collector as a listener on it and inject that
 dispatcher instead; never replace a populated dispatcher with an empty one.
