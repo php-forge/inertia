@@ -306,7 +306,7 @@ final class PageInput
      * @param mixed $key The candidate key; must be a non-empty string without control characters or empty segments.
      * @param string $label Human-readable label used in the error message (for example, `'prop'` or `'shared prop'`).
      *
-     * @throws InvalidPageInputException When `$key` fails validation.
+     * @throws InvalidPageInputException when `$key` fails validation.
      */
     private static function validateKey(mixed $key, string $label): void
     {

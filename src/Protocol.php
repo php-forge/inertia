@@ -71,7 +71,7 @@ final readonly class Protocol
      * @param RequestContext $request Validated request context from the framework adapter.
      * @param string $absoluteUrl Absolute HTTP/HTTPS URL of the target location.
      *
-     * @throws InvalidArgumentException When `$absoluteUrl` is not a valid absolute HTTP/HTTPS URL.
+     * @throws InvalidArgumentException when `$absoluteUrl` is not a valid absolute HTTP/HTTPS URL.
      *
      * @return LocationResult|RedirectResult Returns a {@see LocationResult} for Inertia requests, or a
      * {@see RedirectResult} for non-Inertia requests.
@@ -144,7 +144,7 @@ final readonly class Protocol
      * @param string $url Absolute or root-relative redirect target URL.
      * @param int $statusCode HTTP redirect status code (`301`, `302`, `303`, `307`, or `308`).
      *
-     * @throws InvalidArgumentException When `$url` is invalid or `$statusCode` is not an allowed redirect status.
+     * @throws InvalidArgumentException when `$url` is invalid or `$statusCode` is not an allowed redirect status.
      */
     public function redirect(
         RequestContext $request,
@@ -184,7 +184,7 @@ final readonly class Protocol
      * @param RequestContext $request Validated request context from the framework adapter.
      * @param string $url Absolute or root-relative redirect target URL.
      *
-     * @throws InvalidArgumentException When the request's absolute URL cannot be parsed into scheme and host.
+     * @throws InvalidArgumentException when the request's absolute URL cannot be parsed into scheme and host.
      *
      * @return string Returns the absolute redirect URL.
      */

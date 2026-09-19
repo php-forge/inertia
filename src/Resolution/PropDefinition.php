@@ -72,7 +72,7 @@ final class PropDefinition
      *
      * @param mixed $value Raw prop value, which may be a {@see PropValue} wrapper chain or a plain value.
      *
-     * @throws InvalidPropException When the wrapper chain exceeds 64 levels.
+     * @throws InvalidPropException when the wrapper chain exceeds 64 levels.
      *
      * @return PropDefinition Flattened definition of the prop value and its semantics.
      */

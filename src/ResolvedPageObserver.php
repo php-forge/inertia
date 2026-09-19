@@ -18,6 +18,11 @@ readonly class ResolvedPageObserver
      */
     public function __construct(private Closure $callback) {}
 
+    /**
+     * Forwards the page payload and its shared-prop keys to the configured callback.
+     *
+     * @param Page $page Resolved page whose payload and shared-prop keys are forwarded.
+     */
     public function observe(Page $page): void
     {
         ($this->callback)($page->toArray(), $page->sharedProps());

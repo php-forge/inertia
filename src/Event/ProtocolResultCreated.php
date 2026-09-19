@@ -12,5 +12,9 @@ use PHPForge\Inertia\Result\ProtocolResult;
  */
 final readonly class ProtocolResultCreated
 {
+    /**
+     * @param RequestContext $request Validated request context the protocol operation was resolved for.
+     * @param ProtocolResult $result Protocol result produced for the request.
+     */
     public function __construct(public RequestContext $request, public ProtocolResult $result) {}
 }
