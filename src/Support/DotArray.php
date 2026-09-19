@@ -17,12 +17,17 @@ use function is_array;
  */
 final class DotArray
 {
+    /**
+     * Prevents direct instantiation.
+     */
     private function __construct() {}
 
     /**
      * Expands dot-notated keys in `$values` into a nested associative array.
      *
      * @param array<string, mixed> $values The flat, dot-notated key-value map to expand.
+     *
+     * @throws InvalidPageInputException when a path segment already holds a non-array value.
      *
      * @return array<string, mixed> The expanded nested associative array.
      */
@@ -42,6 +47,10 @@ final class DotArray
      *
      * @param array<string, mixed> $values The current result array to write into.
      * @param non-empty-list<string> $segments Remaining path segments to traverse.
+     * @param mixed $value The value to write at the resolved path.
+     * @param string $path The original dot-notated key, reported in exception messages.
+     *
+     * @throws InvalidPageInputException when a segment along the path already holds a non-array value.
      *
      * @return array<string, mixed> The updated result array with the value written at the given dot-notated path.
      */
@@ -73,6 +82,10 @@ final class DotArray
      *
      * @param array<array-key, mixed> $values The current nested array level.
      * @param non-empty-list<string> $segments Remaining path segments below the root.
+     * @param mixed $value The value to write at the final segment.
+     * @param string $path The original dot-notated key, reported in exception messages.
+     *
+     * @throws InvalidPageInputException when an intermediate segment already holds a non-array value.
      *
      * @return array<array-key, mixed> The updated nested array with the value inserted at the final segment.
      */

@@ -136,7 +136,7 @@ final readonly class OnceProp implements PropValue
     /**
      * Validates the cache key format.
      *
-     * @throws InvalidPropException When `$key` is empty or contains control characters or commas.
+     * @throws InvalidPropException when `$key` is empty or contains control characters or commas.
      */
     private static function validateKey(string $key): void
     {

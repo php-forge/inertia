@@ -81,7 +81,7 @@ final class InertiaCollector implements CollectorInterface, EventDispatcherInter
     /**
      * Returns the sanitized diagnostics for the protocol result observed in the active cycle.
      *
-     * @throws InvalidArgumentException If the observed result is not a supported Inertia protocol result.
+     * @throws InvalidArgumentException if the observed result is not a supported Inertia protocol result.
      *
      * @return array<string, mixed>|null Sanitized diagnostics, or `null` when no protocol result was observed.
      */

@@ -291,7 +291,7 @@ final class PropResolver
      * @param string $path Dot-notation path of the prop.
      * @param mixed $value The resolved value of the prop.
      *
-     * @throws InvalidPropException When scroll metadata is not a {@see ScrollMetadata}.
+     * @throws InvalidPropException when scroll metadata is not a {@see ScrollMetadata}.
      */
     private function collectResolvedMetadata(PropDefinition $definition, string $path, mixed $value): void
     {
@@ -543,7 +543,7 @@ final class PropResolver
      * @param string $path Dot-notation path used for error messages and metadata registration.
      * @param bool $parentWasResolved Whether the parent array was itself resolved, bypassing partial filters.
      *
-     * @throws PropResolutionException When a closure throws and the prop is not deferred.
+     * @throws PropResolutionException when a closure throws and the prop is not deferred.
      *
      * @return ResolvedProp The resolved prop value and inclusion status.
      */

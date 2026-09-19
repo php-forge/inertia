@@ -277,7 +277,7 @@ final class MergeProp implements PropValue
      *
      * @param string $path The path string to validate.
      *
-     * @throws InvalidPropException If the path is invalid.
+     * @throws InvalidPropException if the path is invalid.
      */
     private static function validatePath(string $path): void
     {

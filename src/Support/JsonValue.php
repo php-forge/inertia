@@ -27,6 +27,9 @@ final class JsonValue
      */
     private const int MAX_DEPTH = 512;
 
+    /**
+     * Prevents direct instantiation.
+     */
     private function __construct() {}
 
     /**
@@ -36,10 +39,10 @@ final class JsonValue
      * strings, and types that have no JSON representation.
      *
      * @param mixed $value The prop value to normalize.
-     * @param string $path  Dot-notation path used in exception messages to identify the failing prop.
+     * @param string $path Dot-notation path used in exception messages to identify the failing prop.
      * @param int $depth Current recursion depth; throws when it exceeds 512.
      *
-     * @throws InvalidPropException When the value cannot be represented as JSON.
+     * @throws InvalidPropException when the value cannot be represented as JSON.
      *
      * @return mixed Normalized JSON-compatible value.
      */

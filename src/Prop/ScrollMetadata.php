@@ -19,7 +19,7 @@ final readonly class ScrollMetadata
      * @param int|string|null $nextPage The next page cursor, or `null` if there is no next page.
      * @param int|string|null $currentPage The current page cursor, or `null` if there is no current page.
      *
-     * @throws InvalidPropException When `$pageName` is empty or contains control characters.
+     * @throws InvalidPropException when `$pageName` is empty or contains control characters.
      */
     public function __construct(
         public string $pageName,

@@ -45,7 +45,7 @@ final class InertiaPanel extends Panel
      *
      * @param array<string, mixed> $data Decoded, already-sanitized Inertia diagnostics.
      *
-     * @throws InvalidArgumentException If the capture declares an unsupported result type or malformed values.
+     * @throws InvalidArgumentException if the capture declares an unsupported result type or malformed values.
      *
      * @return PanelView Summary, overview, props table, and raw payload disclosure.
      */

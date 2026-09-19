@@ -104,7 +104,7 @@ final readonly class DeferredProp implements PropValue
      *
      * @param string $group The group name to validate.
      *
-     * @throws InvalidPropException If the group name is invalid.
+     * @throws InvalidPropException if the group name is invalid.
      */
     private static function validateGroup(string $group): void
     {
