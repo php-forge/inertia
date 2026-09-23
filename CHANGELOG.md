@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.5.1 Under development
 
 - docs: describe the automatic debugger wiring `yii2-extensions/debug` and `yii3/debug` provide for this package.
+- docs: describe the explicit debugger registration, `yii3/inertia` config groups, and Yii2 `dispatchers` recipe in `docs/debugging.md`.
 
 ## 0.5.0 September 18, 2026
 

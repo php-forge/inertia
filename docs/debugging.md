@@ -20,39 +20,15 @@ result replaces the preliminary one, and the debugger repeats neither invocation
 ## Development wiring
 
 The package ships one collector and one panel, `PHPForge\Inertia\Debug\InertiaCollector` and
-`PHPForge\Inertia\Debug\InertiaPanel`; the host never reimplements collection or presentation. What differs between
-frameworks is only how the dispatcher reaches the `PHPForge\Inertia\Protocol` service.
+`PHPForge\Inertia\Debug\InertiaPanel`; the host never reimplements collection or presentation. In any framework: pass
+`InertiaCollector` as the `eventDispatcher` of `Protocol::create()` or register it as a listener of
+`ProtocolResultCreated` on your dispatcher, build it with the host redaction callbacks, and register the collector and
+`InertiaPanel` with your debugger under the ID `inertia`. The debuggers name no provider package, so the wiring below
+lives in the framework adapter or the application.
 
-### Yii3, from `yii3/debug` 0.1.0
+### Yii3, from `yii3/debug` 0.1.0 and `yii3/inertia` 0.1.0
 
-`yii3/debug` registers the collector and the panel in its packaged parameters as soon as this package is installed,
-routes `ProtocolResultCreated` to that collector from its packaged `events-web` group, and builds the collector with
-the host `CapturePolicy` redaction callbacks. The container autowires `Psr\EventDispatcher\EventDispatcherInterface`
-into `Protocol`, so the application adds nothing. Disable both packaged entries with `enabled => false` when the
-capture is unwanted.
-
-### Yii2, from `yii2-extensions/debug` 0.2.0
-
-Yii2 has no framework-native PSR-14 dispatcher, and its DI container does not autowire optional constructor arguments.
-`Protocol` emits exactly one event type, so `InertiaCollector` is its own single-listener dispatcher.
-`yii2-extensions/debug` registers the collector and the panel once this package is installed, builds the collector
-with the module capture policy, and hands it to the `inertia` component through
-`yii\inertia\Manager::$eventDispatcher` before the request runs. A component that configures `eventDispatcher` or
-`protocol` itself keeps what it configures; disable the packaged entries with `enabled => false` when the capture is
-unwanted.
-
-If the application already owns a real PSR-14 dispatcher, register the collector as a listener on it and inject that
-dispatcher instead; never replace a populated dispatcher with an empty one. Inject the dispatcher into the **actual**
-`Protocol` service, not into a duplicate diagnostic-only one. Omitting it is safe: the protocol behaves normally and
-the panel simply stays empty.
-
-### Earlier debugger releases
-
-Earlier releases package no Inertia entry: they wrap the portable objects in their generic adapters and group them
-under Extensions, and the `inertia` ID is free for the application to register. Without that registration the panel
-stays empty, and without the redaction callbacks `InertiaCollector` keeps the captured values unchanged.
-
-Yii3, in the application `params`, `events-web`, and `di-web` groups:
+`yii3/inertia` declares the three entries in its own configuration groups, so an application using it adds nothing:
 
 ```php
 use PHPForge\Debug\Capture\CapturePolicy;
@@ -68,30 +44,46 @@ use PHPForge\Inertia\Event\ProtocolResultCreated;
 // events-web.php
 ProtocolResultCreated::class => [InertiaCollector::class],
 
-// di-web.php
+// di-web.php, only when Debug Core is installed
 InertiaCollector::class => static fn(CapturePolicy $policy): InertiaCollector => new InertiaCollector(
     $policy->redact(...),
     $policy->redactUrl(...),
 ),
 ```
 
-Yii2, inside the `YII_DEBUG` configuration guard, keeping the component ID the application already uses:
+`yii3/debug` resolves the collector from the container, the same instance the event dispatcher calls, and the
+container autowires `Psr\EventDispatcher\EventDispatcherInterface` into `Protocol`. Without the debugger installed the
+params entry is inert, the listener only buffers, and the container definition is skipped. Disable the capture with
+`enabled => false` on both the collector and the panel entry.
+
+### Yii2, from `yii2-extensions/debug` 0.2.0
+
+`yii2-extensions/debug` 0.2.0 introduces both provider-owned panels and the `dispatchers` option; the 0.1.x
+releases support neither, so the registration below requires 0.2.0 or later.
+
+Yii2 has no framework-native PSR-14 dispatcher. `Protocol` emits exactly one event type, so `InertiaCollector` is its
+own single-listener dispatcher, and the module's `dispatchers` option hands it to the `yii\inertia\Manager` component
+through its `eventDispatcher` property. Inside the existing `YII_DEBUG` configuration guard:
 
 ```php
+use PHPForge\Debug\Capture\CapturePolicy;
 use PHPForge\Inertia\Debug\{InertiaCollector, InertiaPanel};
-use PHPForge\Inertia\Protocol;
 
-$inertiaCollector = new InertiaCollector();
-
-$config['components']['inertia']['protocol'] = Protocol::create(eventDispatcher: $inertiaCollector);
-$config['modules']['debug']['collectors']['inertia'] = $inertiaCollector;
-$config['modules']['debug']['panels']['inertia'] = new InertiaPanel();
+$config['modules']['debug']['collectors']['inertia'] = static fn(CapturePolicy $policy): InertiaCollector
+    => new InertiaCollector($policy->redact(...), $policy->redactUrl(...));
+$config['modules']['debug']['panels']['inertia'] = InertiaPanel::class;
+// Collector ID => the component ID the application already uses for `yii\inertia\Manager`.
+$config['modules']['debug']['dispatchers']['inertia'] = 'inertia';
 ```
 
-Pass the host `PHPForge\Debug\Capture\CapturePolicy` closures, `$policy->redact(...)` and `$policy->redactUrl(...)`,
-to the `InertiaCollector` constructor to apply the module redaction rules. Retain the existing module bootstrap,
-routing, access rules, and asset configuration; the public `yii\inertia\Manager::$protocol` property accepts the
-instrumented core service.
+The closure receives the module `CapturePolicy`, so props and URLs are redacted with the rules the Request panel
+applies; a bare `InertiaCollector::class` entry keeps the captured values unchanged. A component that configures
+`eventDispatcher` or `protocol` itself keeps what it configures.
+
+If the application already owns a real PSR-14 dispatcher, register the collector as a listener on it and inject that
+dispatcher instead; never replace a populated dispatcher with an empty one. Inject the dispatcher into the **actual**
+`Protocol` service, not into a duplicate diagnostic-only one. Omitting it is safe: the protocol behaves normally and
+the panel simply stays empty.
 
 ## Lifecycle, privacy, and errors
 
