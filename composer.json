@@ -20,7 +20,7 @@
     "require": {
         "ext-json": "*",
         "php": ">=8.3",
-        "php-forge/debug": "^0.3",
+        "php-forge/debug": "^0.4",
         "psr/event-dispatcher": "^1.0"
     },
     "require-dev": {
